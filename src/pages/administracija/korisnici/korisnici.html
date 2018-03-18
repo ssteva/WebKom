@@ -1,0 +1,103 @@
+<template>
+  <div class="container-fluid">
+    <button style="margin-top:40px" class="btn btn-primary" click.delegate="noviKorisnik()">Novi korisnik</button>
+    <br />
+    <br />
+    <ak-grid k-widget.bind="grid" k-data-source.bind="datasource" k-pageable.bind="pageable" k-filterable.bind="filterobj" k-sortable.bind="true">
+      <!-- Column definitions in HTML -->
+      <ak-col k-title="Ime" k-field="ime">
+        <ak-template>
+          <span if.bind="!edit">${ime}</span>
+          <input if.bind="edit" type="text" value.bind="ime" placeholder="ime">
+        </ak-template>
+      </ak-col>
+      <ak-col k-title="Prezime" k-field="prezime">
+        <ak-template>
+          <span if.bind="!edit">${prezime}</span>
+          <input if.bind="edit" type="text" value.bind="prezime" placeholder="Prezime">
+        </ak-template>
+      </ak-col>
+      <ak-col k-title="Korisničko ime" k-field="korisnickoIme">
+        <ak-template>
+          <span if.bind="!edit">${korisnickoIme}</span>
+          <input if.bind="edit" required type="text" value.bind="korisnickoIme" placeholder="Korisničko ime">
+        </ak-template>
+      </ak-col>
+      <ak-col k-title="Email" k-field="email">
+        <ak-template>
+          <span if.bind="!edit">${email}</span>
+          <input if.bind="edit" type="email" value.bind="email" placeholder="Email">
+        </ak-template>
+      </ak-col>
+      <ak-col k-title="Uloga" k-field="uloge">
+        <ak-template>
+
+          <span if.bind="!edit">${uloge[0]}</span>
+          <ak-drop-down-list if.bind="edit" k-data-source.bind="roles" style="width: 100%" k-value.two-way="uloga">
+          </ak-drop-down-list>
+        </ak-template>
+      </ak-col>
+
+
+      <ak-col k-title="Opcije">
+        <ak-template>
+          <!--<button class="uk-button-mini uk-button-primary uk-icon-edit" click.delegate="edit($this)">Izmena</button>-->
+          <!--<a href="javascript:void()"  click.delegate="izmena($this)" class="uk-icon-justify uk-icon-edit"></a>-->
+          <button if.bind="!edit" class="btn btn-primary btn-sm" click.delegate="izmeni($this, $event)">
+            <i class="fa fa-edit"> Izmeni modal</i>
+          </button>
+          <button if.bind="!edit" class="btn btn-primary btn-sm" click.delegate="izmeniInline($this, $event)">
+            <i class="fa fa-edit"> Izmeni inline</i>
+          </button>
+          <button if.bind="edit" class="btn btn-success btn-sm" click.delegate="potvrdi($this, $event)">
+            <i class="fa fa-check"> Potvrdi</i>
+          </button>
+          <button if.bind="edit" class="btn btn-danger btn-sm" click.delegate="otkazi($this, $event)">
+            <i class="fa fa-undo"> Poništi</i>
+          </button>
+        </ak-template>
+      </ak-col>
+      <!--<ak-col k-command.bind="['edit', 'destroy']" k-title="&nbsp;" k-width.bind="200"></ak-col>-->
+      <ak-template for="detailTemplate">
+        <div style="width: 400px" class="row">
+          <div class="col-sm">
+            <div class="form-group">
+              <label for="ime">Ime</label>
+              <input type="text" class="form-control" id="ime" placeholder="Ime korisnika" value.bind="ime">
+            </div>
+            <div class="form-group">
+              <label for="prezime">Prezime</label>
+              <input type="text" class="form-control" id="prezime" placeholder="Prezime korisnika" value.bind="prezime">
+            </div>
+            <div class="form-group">
+              <label for="email">Email adresa</label>
+              <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email adresa korisnika" value.bind="email">
+            </div>
+            <button class="btn btn-primary" click.delegate="potvrdi($this, $event)">
+                <i class="fa fa-check"> Potvrdi</i>
+              </button>
+          </div>
+          <div class="col-sm">
+            <div class="form-group">
+              <label for="panteonid">Panteon id</label>
+              <input type="number" class="form-control" id="panteonid" placeholder="Id korisnika iz panteona" value.bind="panteonId">
+            </div>
+            <div class="form-group">
+              <label for="uloga">Uloga</label>
+              <ak-drop-down-list k-data-source.bind="roles" style="width: 100%" k-value.two-way="uloga">
+              </ak-drop-down-list>
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Status</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" checked.bind="aktivan" id="aktivan">
+                <label class="form-check-label" for="aktivan">
+                  Aktivan
+                </label>
+              </div>
+            </div>
+          </div>
+      </ak-template>
+    </ak-grid>
+  </div>
+</template>

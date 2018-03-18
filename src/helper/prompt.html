@@ -1,0 +1,28 @@
+<template>
+    <!--<require from="/lib/bootstrap/dist/css/bootstrap.css"></require>-->
+    <ai-dialog>
+        <ai-dailog-header>
+            <h2>${message}</h2>
+        </ai-dailog-header>
+        <ai-daialog-body>
+            <div class="md-card">
+                <div class="md-card-content">
+                    <h4 class="heading_list">Podaci o kupcu</h4>
+                    <div class="uk-grid uk-grid-divider" data-uk-grid-margin>
+                        <div class="uk-width-1-1">
+                            <label>Prezime</label>
+                            <input type="text" class="md-input label-fixed"  />
+                            <label>Broj</label>
+                            <input type="text" class="md-input label-fixed" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            Telo
+        </ai-daialog-body>
+        <ai-dialog-footer>
+            <button click.trigger="controller.cancel()">Ne</button>
+            <button click.trigger="controller.ok(message)">Da</button>
+        </ai-dialog-footer>
+    </ai-dialog>
+</template> 

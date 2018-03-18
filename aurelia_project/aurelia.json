@@ -1,0 +1,271 @@
+{
+  "name": "webkom",
+  "type": "project:application",
+  "bundler": {
+    "id": "cli",
+    "displayName": "Aurelia-CLI"
+  },
+  "build": {
+    "targets": [
+      {
+        "id": "aspnetcore",
+        "displayName": "ASP.NET Core",
+        "index": "Views/Shared/_Layout.cshtml",
+        "baseDir": "./wwwroot",
+        "baseUrl": "scripts",
+        "output": "wwwroot/scripts"
+      }
+    ],
+    "options": {
+      "minify": "stage & prod",
+      "sourcemaps": "dev & stage",
+      "rev": false
+    },
+    "bundles": [
+      {
+        "name": "app-bundle.js",
+        "source": [
+          "[**/*.js]",
+          "**/*.{css,html}"
+        ]
+      },
+      {
+        "name": "vendor-bundle.js",
+        "prepend": [
+          "node_modules/bluebird/js/browser/bluebird.core.js",
+          {
+            "path": "node_modules/aurelia-cli/lib/resources/scripts/configure-bluebird-no-long-stacktraces.js",
+            "env": "stage & prod"
+          },
+          {
+            "path": "node_modules/aurelia-cli/lib/resources/scripts/configure-bluebird.js",
+            "env": "dev"
+          },
+          "node_modules/whatwg-fetch/fetch.js",
+          "node_modules/popper.js/dist/umd/popper.js",
+          "node_modules/requirejs/require.js"
+        ],
+        "dependencies": [
+          "aurelia-binding",
+          "aurelia-bootstrapper",
+          "aurelia-dependency-injection",
+          "aurelia-event-aggregator",
+          "aurelia-framework",
+          "aurelia-history",
+          "aurelia-history-browser",
+          "aurelia-loader",
+          "aurelia-loader-default",
+          "aurelia-logging",
+          "aurelia-logging-console",
+          "aurelia-metadata",
+          "aurelia-pal",
+          "aurelia-pal-browser",
+          "aurelia-path",
+          "aurelia-polyfills",
+          "aurelia-route-recognizer",
+          "aurelia-router",
+          "aurelia-task-queue",
+          "aurelia-templating",
+          "aurelia-templating-binding",
+          {
+            "name": "aurelia-templating-resources",
+            "path": "../node_modules/aurelia-templating-resources/dist/amd",
+            "main": "aurelia-templating-resources"
+          },
+          {
+            "name": "aurelia-templating-router",
+            "path": "../node_modules/aurelia-templating-router/dist/amd",
+            "main": "aurelia-templating-router"
+          },
+          {
+            "name": "aurelia-testing",
+            "path": "../node_modules/aurelia-testing/dist/amd",
+            "main": "aurelia-testing",
+            "env": "dev"
+          },
+          "text",
+          "extend",
+          "typer",
+          "aurelia-fetch-client",
+          "aurelia-view-manager",
+          "aurelia-api",
+          {
+            "name": "aurelia-authentication",
+            "path": "../node_modules/aurelia-authentication/dist/amd",
+            "main": "aurelia-authentication"
+          },
+          {
+            "name": "jwt-decode",
+            "path": "../node_modules/jwt-decode/lib",
+            "main": "index"
+          },
+          "jquery",
+          {
+            "name": "bootstrap",
+            "path": "../node_modules/bootstrap/dist",
+            "main": "js/bootstrap.min.js",
+            "deps": [
+              "jquery"
+            ],
+            "exports": "$",
+            "resources": [
+              "css/bootstrap.css"
+            ]
+          },
+          {
+            "name": "font-awesome",
+            "path": "../node_modules/font-awesome/css",
+            "main": "font-awesome.css"
+          },
+          {
+            "name": "kendo",
+            "path": "../node_modules/@progress/kendo-ui",
+            "resources": [
+              "js/kendo.button.js",
+              "js/kendo.autocomplete.js",
+              "js/kendo.core.js",
+              "js/kendo.ui.core.js",
+              "js/kendo.data.js",
+              "js/kendo.grid.js",
+              "css/web/kendo.common.min.css",
+              "css/web/kendo.bootstrap-v4.min.css",
+              "css/web/kendo.default.min.css",
+              "css/web/kendo.default-v2.min.css"
+            ]
+          },
+          {
+            "name": "aurelia-kendoui-bridge",
+            "main": "index",
+            "path": "../node_modules/aurelia-kendoui-bridge/dist/amd",
+            "resources": [
+              "common/*.{js,html}",
+              "autocomplete/*.{js,html}",
+              "button/*.{js,html}",
+              "contextmenu/*.{js,html}",
+              "combobox/*.{js,html}",
+              "datepicker/*.{js,html}",
+              "datetimepicker/*.{js,html}",
+              "contextmenu/*.{js,html}",
+              "numerictextbox/*.{js,html}",
+              "dropdownlist/*.{js,html}",
+              "grid/*.{js,html}"
+            ]
+          },
+          {
+            "name": "toastr",
+            "path": "../node_modules/toastr",
+            "main": "toastr",
+            "resources": [
+              "build/toastr.min.css"
+            ],
+            "deps": [
+              "jquery"
+            ]
+          },
+          "get-prop",
+          {
+            "name": "aurelia-orm",
+            "path": "../node_modules/aurelia-orm/dist/amd",
+            "main": "aurelia-orm",
+            "resources": [
+              "component/view/bootstrap/association-select.html",
+              "component/view/bootstrap/paged.html",
+              "component/association-select.js",
+              "component/paged.js"
+            ]
+          },
+          {
+            "name": "aurelia-validation",
+            "main": "aurelia-validation",
+            "path": "../node_modules/aurelia-validation/dist/amd",
+            "resources": []
+          },
+          {
+            "name": "aurelia-dialog",
+            "main": "aurelia-dialog",
+            "path": "../node_modules/aurelia-dialog/dist/amd",
+            "resources": []
+          },
+          {
+            "name": "moment",
+            "main": "./moment.js",
+            "path": "../node_modules/moment",
+            "exports": "moment",
+            "resources": []
+          },
+          {
+            "name": "popper.js",
+            "path": "../node_modules/popper.js/dist/umd",
+            "main": "popper.js"
+          }
+        ]
+      }
+    ],
+    "loader": {
+      "type": "require",
+      "configTarget": "vendor-bundle.js",
+      "includeBundleMetadataInConfig": "auto",
+      "plugins": [
+        {
+          "name": "text",
+          "extensions": [
+            ".html",
+            ".css"
+          ],
+          "stub": false
+        }
+      ]
+    }
+  },
+  "platform": {
+    "id": "aspnetcore",
+    "displayName": "ASP.NET Core",
+    "index": "wwwroot/index.html",
+    "baseDir": "./wwwroot",
+    "baseUrl": "scripts",
+    "output": "wwwroot/scripts"
+  },
+  "transpiler": {
+    "id": "babel",
+    "displayName": "Babel",
+    "fileExtension": ".js",
+    "options": {
+      "plugins": [
+        "transform-es2015-modules-amd"
+      ]
+    },
+    "source": "src/**/*.js"
+  },
+  "markupProcessor": {
+    "id": "none",
+    "displayName": "None",
+    "fileExtension": ".html",
+    "source": "src/**/*.html"
+  },
+  "cssProcessor": {
+    "id": "sass",
+    "displayName": "Sass",
+    "fileExtension": ".scss",
+    "source": "src/**/*.scss"
+  },
+  "editor": {
+    "id": "vscode",
+    "displayName": "Visual Studio Code"
+  },
+  "unitTestRunner": {
+    "id": "none",
+    "displayName": "None"
+  },
+  "paths": {
+    "root": "src",
+    "resources": "resources",
+    "elements": "resources/elements",
+    "attributes": "resources/attributes",
+    "valueConverters": "resources/value-converters",
+    "bindingBehaviors": "resources/binding-behaviors",
+    "fontsInput": "./node_modules/font-awesome/fonts/**/*.*",
+    "fontsOutput": "./wwwroot/fonts",
+    "kendoFontsInput": "./node_modules/@progress/css/web/fonts/**/*.*",
+    "kendoFOutput": "./wwwroot/fonts"
+  }
+}

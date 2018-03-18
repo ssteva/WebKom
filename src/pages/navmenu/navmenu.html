@@ -1,0 +1,46 @@
+﻿<template>
+  <require from="./navmenu.css"></require>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+      <a class="navbar-brand" href="#">Fixed navbar</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav" repeat.for="row of routes">
+          <li class="nav-item ${row.master ? '' : 'dropdown'}" >
+            <a if.bind="!row.master && row.podmeni.length===0 && row.title !== 'Home'"  class="nav-link" href.bind="row.href">
+              <i class="fa fa-${row.settings.ikona}" aria-hidden="true"></i>
+              <span class="title">${row.title}</span>
+            </a>
+            <a if.bind="row.podmeni.length>0"  class="nav-link dropdown-toggle" href="javascript:void(0)" id="red1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-${row.settings.ikona}" aria-hidden="true"></i>
+                <span class="title">${row.title}</span>
+            </a>
+            <div if.bind="row.podmeni.length>0" class="dropdown-menu" aria-labelledby="red1">
+              <div repeat.for="row2 of row.podmeni">
+                <a class="dropdown-item" href.bind="row2.href">
+                    <i class="fa fa-${row2.settings.ikona}" aria-hidden="true"></i>
+                    ${row2.title}
+                  </a>
+                </div>
+            </div>
+          </li>
+          <!-- <li class.bind="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </li> -->
+        </ul>
+        
+        <!-- <form class="form-inline mt-2 mt-md-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form> -->
+      </div>
+    </nav>
+
+</template>

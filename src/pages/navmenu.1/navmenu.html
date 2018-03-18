@@ -1,0 +1,33 @@
+﻿<template>
+  <require from="./navmenu.css"></require>
+  <!-- Ace Responsive Menu -->
+  <nav>
+    <!-- Menu Toggle btn-->
+    <div class="menu-toggle">
+      <h3>Menu</h3>
+      <button type="button" id="menu-btn">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <!-- Responsive Menu Structure-->
+    <!--Note: declare the Menu style in the data-menu-style="horizontal" (options: horizontal, vertical, accordion) -->
+    <ul id="respMenu" class="ace-responsive-menu ml-auto" data-menu-style="horizontal">
+      <li repeat.for="row of routes">
+        <a if.bind="!row.master" href.bind="row.href">
+          <i class="fa fa-${row.settings.ikona}" aria-hidden="true"></i>
+          <span class="title">${row.title}</span>
+        </a>
+        <ul if.bind=row.podmeni.length !==0>
+          <li repeat.for="row2 of row.podmeni">
+            <a href.bind="row2.href">
+              <i class="fa fa-${row2.settings.ikona}" aria-hidden="true"></i>
+              ${row2.title}
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</template>

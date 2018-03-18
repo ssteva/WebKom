@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "buildau",
+            "command": "au",
+            "type": "shell",
+            "args": [
+                "build",
+                "${workspaceFolder}/webkom.csproj"
+            ]
+        },
+        {
+          "label": "buildnet",
+          "command": "dotnet",
+          "type": "process",
+          "args": [
+              "build",
+              "${workspaceFolder}/webkom.csproj"
+          ],
+          "problemMatcher": "$msCompile"
+      }
+
+    ]
+}
