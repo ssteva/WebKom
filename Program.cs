@@ -36,6 +36,7 @@ namespace webkom
         .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
         .Enrich.FromLogContext()
         .WriteTo.MSSqlServer(Configuration.GetConnectionString("DefaultConnection"), "Logs")
+        //.WriteTo.RollingFile("logs\\log-{Date}.txt")
         .CreateLogger();
       try
       {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-using webkom.Models;
+namespace webkom.Models
 {
     public class PorudzbenicaStavka : Entitet
     {
