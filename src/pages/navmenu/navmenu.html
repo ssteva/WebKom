@@ -13,11 +13,11 @@
               <i class="fa fa-${row.settings.ikona}" aria-hidden="true"></i>
               <span class="title">${row.title}</span>
             </a>
-            <a if.bind="row.podmeni.length>0"  class="nav-link dropdown-toggle" href="javascript:void(0)" id="red1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a if.bind="row.podmeni.length>0"  class="nav-link dropdown-toggle" href="javascript:void(0)" id.bind="row.title + row.id.toString()" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-${row.settings.ikona}" aria-hidden="true"></i>
                 <span class="title">${row.title}</span>
             </a>
-            <div if.bind="row.podmeni.length>0" class="dropdown-menu" aria-labelledby="red1">
+            <div if.bind="row.podmeni.length>0" class="dropdown-menu" aria-labelledby.bind="row.title + row.id.toString()">
               <div repeat.for="row2 of row.podmeni">
                 <a class="dropdown-item" href.bind="row2.href">
                     <i class="fa fa-${row2.settings.ikona}" aria-hidden="true"></i>
