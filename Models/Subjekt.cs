@@ -22,12 +22,14 @@ public class Subjekt : Entitet
     public virtual string Drzava { get; set; }
     public virtual string Pib { get; set; }
     public virtual string MaticniBroj { get; set; }
-    public virtual string Payer { get; set; }
-    public virtual bool Buyer { get; set; }
-    public virtual bool Supplier { get; set; }
-    public virtual bool Warehouse { get; set; }
-    public virtual bool Dept { get; set; }
+    public virtual bool Kupac { get; set; }
+    public virtual bool Dobavljac { get; set; }
+    public virtual bool Skladiste { get; set; }
+    public virtual bool Odeljenje { get; set; }
+    public virtual string Valuta { get; set; }
+    public virtual string Paritet { get; set; }
     public virtual Korisnik OdgovornoLice { get; set; }
+    public virtual Subjekt Platilac { get; set; }
 
 
 }

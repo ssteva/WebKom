@@ -26,12 +26,14 @@ namespace webkom.Mapping
       Map(x=>x.Drzava);
       Map(x => x.Pib);
       Map(x => x.MaticniBroj);
-      Map(x => x.Payer).CustomSqlType("nvarchar(30)");
-      Map(x => x.Buyer);
-      Map(x => x.Supplier);
-      Map(x => x.Warehouse);
-      Map(x => x.Dept);
-      References(x => x.OdgovornoLice).Cascade.None();
+      Map(x => x.Kupac);
+      Map(x => x.Dobavljac);
+      Map(x => x.Skladiste);
+      Map(x => x.Odeljenje);
+      Map(x => x.Valuta).CustomSqlType("char(3)");
+      Map(x => x.Paritet).CustomSqlType("nvarchar(13)");
+      References(x => x.OdgovornoLice).Cascade.None().Not.Update();
+      References(x => x.Platilac).Cascade.None().Not.Update();
     }
   }
 }

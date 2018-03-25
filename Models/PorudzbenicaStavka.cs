@@ -10,7 +10,7 @@ namespace webkom.Models
     public class PorudzbenicaStavka : Entitet
     {
         public virtual int Id { get; set; }
-        public virtual Dokument Dokument { get; set; }
+        public virtual Porudzbenica Dokument { get; set; }
         public virtual int? Rbr { get; set; }
         public virtual int? Poruceno { get; set; }
         public virtual int? Odobreno { get; set; }

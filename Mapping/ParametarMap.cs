@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using FluentNHibernate.Mapping;
 using webkom.Models;
 
-namespace webkom.mapping
+namespace webkom.Mapping
 {
     public class ParametarMap :  ClassMap<Parametar>
     {
