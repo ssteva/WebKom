@@ -36,7 +36,7 @@ namespace webkom
         .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
         .Enrich.FromLogContext()
         .WriteTo.MSSqlServer(Configuration.GetConnectionString("DefaultConnection"), "Logs")
-        //.WriteTo.RollingFile("logs\\log-{Date}.txt")
+        .WriteTo.RollingFile("logs\\log-{Date}.txt")
         .CreateLogger();
       try
       {
@@ -52,11 +52,15 @@ namespace webkom
             //IdentityInicijalizacija.SeedData();
             //IdentityInicijalizacija.SeedMenu();
             //var init = new Seed(services.GetRequiredService<UserManager<ApplicationUser>>(), services.GetRequiredService<RoleManager<IdentityRole>>(), services.GetRequiredService<ISession>());
-            var init = new Seed(services.GetRequiredService<KorisnikManager>(),  services.GetRequiredService<ISession>());
+            var init = new Seed(services.GetRequiredService<KorisnikManager>(),  services.GetRequiredService<ISession>(), 
+                                services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
             init.SeedUsers();
-            init.SeedMenu();
-            init.SeedIdent();
-            init.SeedSubjekt();
+            init.SeedData("exec seed_meni");
+            init.SeedData("exec seed_ident");
+            init.SeedData("exec seed_subjekt");
+            // init.SeedMenu();
+            // init.SeedIdent();
+            // init.SeedSubjekt();
           }
           catch (Exception ex)
           {

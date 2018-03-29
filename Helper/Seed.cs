@@ -4,10 +4,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using System.Security;
+using Microsoft.Extensions.Logging;
+using NHibernate;
 using webkom.Data;
 using webkom.Models;
-using System.Security;
-using NHibernate;
+
 
 namespace webkom.Helper
 {
@@ -15,6 +17,8 @@ namespace webkom.Helper
   {
     private readonly ISession _session;
     private readonly KorisnikManager _userManager;
+    
+    private readonly ILogger _logger;
   
     // public Seed(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ISession session)
     // {
@@ -23,12 +27,24 @@ namespace webkom.Helper
     //   _userManager = userManager;
 
     // }
-        public Seed(KorisnikManager userManager, ISession session)
+        public Seed(KorisnikManager userManager, ISession session, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
     {
       _session = session;
       _userManager = userManager;
+     _logger = loggerFactory.CreateLogger<Seed>();
+    }
+
+    public void SeedData(string procedure)
+    {
+      try{
+        var query = _session.CreateSQLQuery(procedure);
+        query.ExecuteUpdate();
+      }catch(Exception ex){
+        _logger.LogError(ex.Message);
+      }
 
     }
+
     public void SeedMenu()
     {
       // var m = _session.Query<Meni>().ToList();

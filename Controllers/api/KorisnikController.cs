@@ -13,10 +13,8 @@ using NHibernate;
 //using VoxServis.Services;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 //using ISession = NHibernate.ISession;
-
 using System.Globalization;
 using System.Security.Claims;
-
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using NHibernate.Criterion;
