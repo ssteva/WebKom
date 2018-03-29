@@ -5,6 +5,7 @@ src/environment.js
 node_modules.zip
 wwwroot/scripts/app*.*
 wwwroot/scripts/vendor*.*
+logs
 
 # User-specific files
 *.suo
