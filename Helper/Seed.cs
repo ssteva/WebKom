@@ -27,11 +27,15 @@ namespace webkom.Helper
     //   _userManager = userManager;
 
     // }
-        public Seed(KorisnikManager userManager, ISession session, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
+    public Seed(KorisnikManager userManager, ISession session, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
     {
-      _session = session;
-      _userManager = userManager;
-     _logger = loggerFactory.CreateLogger<Seed>();
+        _session = session;
+        _userManager = userManager;
+      _logger = loggerFactory.CreateLogger<Seed>();
+      SeedUsers();
+      SeedData("exec seed_meni");
+      SeedData("exec seed_ident");
+      SeedData("exec seed_subjekt");
     }
 
     public void SeedData(string procedure)
