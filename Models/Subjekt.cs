@@ -18,7 +18,7 @@ public class Subjekt : Entitet
     public virtual string Sifra { get; set; }
     public virtual string Naziv { get; set; }
     public virtual string Adresa { get; set; }
-    public virtual string Ptt { get; set; }
+    public virtual Mesto Mesto { get; set; }
     public virtual string Drzava { get; set; }
     public virtual string Pib { get; set; }
     public virtual string MaticniBroj { get; set; }
@@ -26,9 +26,10 @@ public class Subjekt : Entitet
     public virtual bool Dobavljac { get; set; }
     public virtual bool Skladiste { get; set; }
     public virtual bool Odeljenje { get; set; }
-    public virtual string Valuta { get; set; }
-    public virtual string Paritet { get; set; }
+    public virtual int DanaZaPlacanje { get; set; }
     public virtual Korisnik OdgovornoLice { get; set; }
+    public virtual Valuta Valuta { get; set; }
+    public virtual Mesto MestoIsporuke { get; set; }
     public virtual Subjekt Platilac { get; set; }
 
 

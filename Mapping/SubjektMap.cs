@@ -21,7 +21,6 @@ namespace webkom.Mapping
       Id(x => x.Id).UnsavedValue(0).GeneratedBy.Assigned();
       Map(x=>x.Sifra).Unique();
       Map(x=>x.Naziv);
-      Map(x=>x.Ptt);
       Map(x=>x.Adresa);
       Map(x=>x.Drzava);
       Map(x => x.Pib);
@@ -30,10 +29,12 @@ namespace webkom.Mapping
       Map(x => x.Dobavljac);
       Map(x => x.Skladiste);
       Map(x => x.Odeljenje);
-      Map(x => x.Valuta).CustomSqlType("char(3)");
-      Map(x => x.Paritet).CustomSqlType("nvarchar(13)");
+      Map(x => x.DanaZaPlacanje);
       References(x => x.OdgovornoLice).Cascade.None().Not.Update();
-      References(x => x.Platilac).Cascade.None().Not.Update();
+      References(x => x.Valuta).Cascade.None().Not.Update();
+      References(x => x.Platilac).Column("PlatilacId").Cascade.None().Not.Update();
+      References(x => x.Mesto).Cascade.None().Not.Update();
+      References(x => x.MestoIsporuke).Column("MestoIsporukeId").Cascade.None().Not.Update();
     }
   }
 }

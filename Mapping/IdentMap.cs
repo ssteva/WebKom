@@ -25,11 +25,11 @@ namespace webkom.Mapping
       Map(x=>x.Sekundarna);
       Map(x => x.Barkod);
       Map(x=>x.Jm);
-      Map(x => x.JmKoef).CustomSqlType("decimal(19,6)");
+      Map(x => x.Koleta).CustomSqlType("decimal(19,6)");
       Map(x => x.PoreskaStopa);
       Map(x => x.PoreskaOznaka).CustomSqlType("char(2)");
-      Map(x => x.CenaRt).CustomSqlType("float");
-      Map(x => x.CenaProdajna).CustomSqlType("decimal(12,2)");
+      Map(x => x.CenaBezPdv).CustomSqlType("float");
+      Map(x => x.Cena).CustomSqlType("decimal(12,2)");
     }
   }
 }

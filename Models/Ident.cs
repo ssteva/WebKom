@@ -21,9 +21,9 @@ public class Ident : Entitet
     public virtual string Sekundarna { get; set; }
     public virtual string Barkod { get; set; }
     public virtual string Jm { get; set; }
-    public virtual decimal JmKoef { get; set; }
+    public virtual decimal Koleta { get; set; }
     public virtual int PoreskaStopa { get; set; }
     public virtual string PoreskaOznaka { get; set; }
-    public virtual decimal CenaRt { get; set; }
-    public virtual decimal CenaProdajna { get; set; }
+    public virtual decimal CenaBezPdv { get; set; }
+    public virtual decimal Cena { get; set; }
 }

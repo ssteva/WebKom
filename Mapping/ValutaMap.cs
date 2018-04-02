@@ -10,17 +10,16 @@ using webkom.Models;
 
 namespace webkom.Mapping
 {
-  public class StatusMap : EntitetMap<Status>
+  public class ValutaMap : EntitetMap<Valuta>
   {
-    public StatusMap()
+    public ValutaMap()
     {
          base.MapSubClass();
     }
     protected override void MapSubClass()
     {
-      Table("tStatus");
-      Id(x => x.Id).CustomSqlType("varchar(3)").UnsavedValue("").GeneratedBy.Assigned();
-      Map(x=>x.Vrsta).CustomSqlType("varchar(20)");
+      Table("tValuta");
+      Id(x => x.Id).UnsavedValue("").GeneratedBy.Assigned();
       Map(x=>x.Naziv);
     }
   }

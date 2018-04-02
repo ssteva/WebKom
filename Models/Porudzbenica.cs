@@ -19,7 +19,7 @@ namespace webkom.Models
         public virtual DateTime Datum { get; set; }
         public virtual DateTime DatumVazenja { get; set; }
         public virtual DateTime DatumIsporuke { get; set; }
-        public virtual string Valuta {get;set;}
+        public virtual Valuta Valuta {get;set;}
         public virtual decimal Kurs {get;set;}
         public virtual string Dokument1 {get;set;}
         public virtual string Dokument2 {get;set;}
@@ -27,9 +27,9 @@ namespace webkom.Models
         public virtual string KontaktOsobaMestaIsporuke {get;set;}
         public virtual DateTime DatumDokument1 {get;set;}
         public virtual DateTime DatumDokument2 {get;set;}
-        public virtual Subjekt Narucilac {get;set;}
+        public virtual Subjekt Kupac {get;set;}
         public virtual Subjekt Platilac {get;set;}
-        public virtual Subjekt Skladiste {get;set;}
+        //public virtual Subjekt Skladiste {get;set;}
         public virtual Subjekt MestoIsporuke {get;set;}
         public virtual Mesto Region {get;set;}
         public virtual Status Status {get;set;}

@@ -9,6 +9,7 @@ namespace webkom.Models
     public class Parametar 
     {
         public virtual int Id { get; set; }
+        public virtual string Vrsta { get; set; }
         public virtual string Naziv { get; set; }
         public virtual int Vredpar1 { get; set; }
         public virtual int Vredpar2 { get; set; }
