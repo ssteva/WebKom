@@ -43,6 +43,13 @@ export function configure(aurelia) {
     builder => {
       builder.registerEntities(entiteti);
   })
+  .plugin('aurelia-mousetrap', config => {
+    // Example keymap
+    config.set('keymap', {
+      "/": "KS_SEARCH",
+      "n": "KS_NEW"
+    });
+  })
   .plugin('aurelia-kendoui-bridge', kendo => {
     kendo.kendoGrid()
         .kendoTemplateSupport()

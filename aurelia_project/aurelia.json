@@ -42,6 +42,7 @@
             "env": "dev"
           },
           "node_modules/whatwg-fetch/fetch.js",
+          "node_modules/mousetrap/mousetrap.js",
           "node_modules/popper.js/dist/umd/popper.js",
           "node_modules/requirejs/require.js"
         ],
@@ -192,6 +193,25 @@
             "path": "../node_modules/moment",
             "exports": "moment",
             "resources": []
+          },
+          {
+            "name": "mousetrap",
+            "main": "./mousetrap.js",
+            "path": "../node_modules/mousetrap",
+            "exports": "mousetrap",
+            "resources": []
+          },
+          {
+            "name": "aurelia-mousetrap",
+            "path": "../node_modules/aurelia-mousetrap/dist/amd",
+            "main": "index",
+            "resources": [
+              "mousetrap-config.js",
+              "mousetrap-attribute.js",
+              "mousetrap-click.js",
+              "mousetrap-focus.js",
+              "mousetrap-blur.js"
+            ]
           },
           {
             "name": "popper.js",

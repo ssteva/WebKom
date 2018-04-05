@@ -16,7 +16,9 @@ namespace webkom.Mapping
         {
             //SchemaAction.None();
             Table("tParametri");
-            Id(x => x.Id).GeneratedBy.Assigned();
+            Id(x => x.Id).GeneratedBy.Identity();
+            Map(x => x.Klasa);
+            Map(x => x.Vrsta);
             Map(x => x.Naziv);
             Map(x => x.Vredpar1);
             Map(x => x.Vredpar2);

@@ -39,6 +39,7 @@ namespace webkom.Helper
             SeedData("exec seed_valuta");
             SeedData("exec seed_status");
             SeedData("exec seed_nacinprodaje");
+            SeedData("exec seed_nacinplacanja");
             SeedData("exec apk_webkom_pantheon_ident");
             SeedData("exec apk_webkom_pantheon_subject");
         }
