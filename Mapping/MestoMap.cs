@@ -19,7 +19,8 @@ namespace webkom.Mapping
     protected override void MapSubClass()
     {
       Table("tMesto");
-      Id(x => x.Id).UnsavedValue("").GeneratedBy.Assigned();
+      Id(x=>x.Id).UnsavedValue(0).GeneratedBy.Identity();
+      Map(x => x.Ptt).CustomSqlType("varchar(13)");
       Map(x=>x.Naziv);
       Map(x=>x.Region);
     }

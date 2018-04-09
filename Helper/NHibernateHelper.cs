@@ -11,7 +11,7 @@ using Environment = NHibernate.Cfg.Environment;
 using NHibernate.Tool.hbm2ddl;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using Microsoft.Extensions.Logging;
-using Helper;
+using webkom.Helper;
 
 namespace webkom.Helper
 {

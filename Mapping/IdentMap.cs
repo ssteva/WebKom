@@ -21,10 +21,10 @@ namespace webkom.Mapping
       Id(x => x.Id).UnsavedValue(0).GeneratedBy.Assigned();
       Map(x=>x.Sifra).Unique();
       Map(x=>x.Naziv);
-      Map(x=>x.Primarna);
-      Map(x=>x.Sekundarna);
-      Map(x => x.Barkod);
-      Map(x=>x.Jm);
+      Map(x=>x.Primarna).CustomSqlType("varchar(16)");
+      Map(x=>x.Sekundarna).CustomSqlType("varchar(16)");
+      Map(x => x.Barkod).CustomSqlType("varchar(20)");
+      Map(x=>x.Jm).CustomSqlType("varchar(3)");
       Map(x => x.Koleta).CustomSqlType("decimal(19,6)");
       Map(x => x.PoreskaStopa);
       Map(x => x.PoreskaOznaka).CustomSqlType("char(2)");

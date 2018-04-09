@@ -29,12 +29,15 @@ namespace webkom.Models
         public virtual int Rbr { get; set; }
         public virtual int Kolicina { get; set; }
         public virtual decimal Koleta { get; set; }
-        public virtual string Jm {get;set;}
+        public virtual string Jm { get; set; }
+        public virtual int PoreskaStopa { get; set; }
+        public virtual string PoreskaOznaka { get; set; }
         public virtual decimal Rabat1 { get; set; }
         public virtual decimal Rabat2 { get; set; }
         public virtual decimal Rabat3 { get; set; }
         public virtual decimal Rabat { get; set; }
-        
+        public virtual decimal CenaBezPdv { get; set; }
+        public virtual decimal Cena { get; set; }
     }
 }
 

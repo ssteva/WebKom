@@ -28,7 +28,7 @@ using ISession = NHibernate.ISession;
 //using StandCert.Web.Hubs;
 //using WebGrease.Css.Extensions;
 
-namespace Helper
+namespace webkom.Helper
 {
 
   [Serializable]

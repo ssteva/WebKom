@@ -32,11 +32,16 @@ namespace webkom.Helper
             _session = session;
             _userManager = userManager;
             _logger = loggerFactory.CreateLogger<Seed>();
+        }
+
+        public void SeedDatabase(){
+            _logger.LogInformation("Seed database");
             SeedUsers();
+            SeedData("exec seed_parametri");
             SeedData("exec seed_meni");
+            SeedData("exec seed_valuta");
             SeedData("exec seed_nacindostave");
             SeedData("exec seed_region");
-            SeedData("exec seed_valuta");
             SeedData("exec seed_status");
             SeedData("exec seed_nacinprodaje");
             SeedData("exec seed_nacinplacanja");
@@ -44,7 +49,7 @@ namespace webkom.Helper
             SeedData("exec apk_webkom_pantheon_subject");
         }
 
-        public void SeedData(string procedure)
+        private void SeedData(string procedure)
         {
             try
             {
@@ -53,12 +58,12 @@ namespace webkom.Helper
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex.InnerException.Message);
             }
 
         }
 
-        public void SeedMenu()
+        private void SeedMenu()
         {
             // var m = _session.Query<Meni>().ToList();
             // if(m.Any()) return;
@@ -88,18 +93,18 @@ namespace webkom.Helper
 
 
         }
-        public void SeedIdent()
+        private void SeedIdent()
         {
             var query = _session.CreateSQLQuery("exec seed_ident");
             query.ExecuteUpdate();
 
         }
-        public void SeedSubjekt()
+        private void SeedSubjekt()
         {
             var query = _session.CreateSQLQuery("exec seed_subjekt");
             query.ExecuteUpdate();
         }
-        public void SeedUsers()
+        private void SeedUsers()
         {
 
             // var dev = new ApplicationUser()

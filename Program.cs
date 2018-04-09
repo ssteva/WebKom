@@ -54,6 +54,7 @@ namespace webkom
             //var init = new Seed(services.GetRequiredService<UserManager<ApplicationUser>>(), services.GetRequiredService<RoleManager<IdentityRole>>(), services.GetRequiredService<ISession>());
             var init = new Seed(services.GetRequiredService<KorisnikManager>(),  services.GetRequiredService<ISession>(), 
                                 services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
+            init.SeedDatabase();
             // init.SeedUsers();
             // init.SeedData("exec seed_meni");
             // init.SeedData("exec seed_ident");

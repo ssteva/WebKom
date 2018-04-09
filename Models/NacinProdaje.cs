@@ -7,7 +7,8 @@ namespace webkom.Models
 {
   public class NacinProdaje : Entitet
   {
-      public virtual string Id { get; set; }
+      public virtual int Id { get; set; }
+      public virtual string Oznaka { get; set; }
       public virtual string Naziv { get; set; }
 
   }
