@@ -46,7 +46,7 @@ export function configure(aurelia) {
   .plugin('aurelia-mousetrap', config => {
     // Example keymap
     config.set('keymap', {
-      "/": "KS_SEARCH",
+      "alt+n": "KS_SEARCH",
       "n": "KS_NEW"
     });
   })
@@ -63,6 +63,7 @@ export function configure(aurelia) {
         .kendoDropDownList()
   })
   .plugin('aurelia-validation')
+  .plugin('aurelia-after-attached-plugin')
   .plugin('aurelia-dialog', config => {
     config.useDefaults();
     config.settings.lock = true;

@@ -42,7 +42,6 @@
             "env": "dev"
           },
           "node_modules/whatwg-fetch/fetch.js",
-          "node_modules/mousetrap/mousetrap.js",
           "node_modules/popper.js/dist/umd/popper.js",
           "node_modules/requirejs/require.js"
         ],
@@ -217,6 +216,12 @@
             "name": "popper.js",
             "path": "../node_modules/popper.js/dist/umd",
             "main": "popper.js"
+          },
+          {
+            "name": "aurelia-after-attached-plugin",
+            "main": "aurelia-after-attached-plugin",
+            "path": "../node_modules/aurelia-after-attached-plugin/dist/amd",
+            "resources": []
           }
         ]
       }

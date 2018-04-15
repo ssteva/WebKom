@@ -33,7 +33,7 @@ namespace webkom.Mapping
             Map(x => x.DatumDokument1).CustomSqlType("date");
             Map(x => x.DatumDokument2).CustomSqlType("date");
             Map(x => x.StatusPanteon);
-            References(x => x.Valuta).Cascade.None().Not.Update();
+            References(x => x.Valuta).Cascade.None().Not.Update().LazyLoad();
             References(x => x.NacinDostave).Cascade.None().Not.Update();
             References(x => x.NacinPlacanja).Cascade.None().Not.Update();
             References(x => x.Kupac).Column("KupacId").Cascade.None().Not.Update();

@@ -27,6 +27,7 @@ namespace webkom.Models
         public virtual int Id { get; set; }
         public virtual Porudzbenica Porudzbenica { get; set; }
         public virtual int Rbr { get; set; }
+        public virtual Ident Ident { get; set; }
         public virtual int Kolicina { get; set; }
         public virtual decimal Koleta { get; set; }
         public virtual string Jm { get; set; }

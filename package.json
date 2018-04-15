@@ -9,6 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "@progress/kendo-ui": "^2017.3.1116",
+    "aurelia-after-attached-plugin": "github:aurelia-ui-toolkits/aurelia-after-attached-plugin",
     "aurelia-animator-css": "^1.0.2",
     "aurelia-api": "^3.1.1",
     "aurelia-authentication": "^3.7.0",

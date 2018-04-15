@@ -10,28 +10,30 @@ using webkom.Models;
 
 namespace webkom.Mapping
 {
-  public class PorudzbenicaStavkaMap : EntitetMap<PorudzbenicaStavka>
-  {
-    public PorudzbenicaStavkaMap()
+    public class PorudzbenicaStavkaMap : EntitetMap<PorudzbenicaStavka>
     {
-         base.MapSubClass();
+        public PorudzbenicaStavkaMap()
+        {
+            base.MapSubClass();
+        }
+        protected override void MapSubClass()
+        {
+            Table("tPorudzbenicaStavka");
+            Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
+            Map(x => x.Rbr);
+            Map(x => x.Kolicina);
+            Map(x => x.Jm).CustomSqlType("varchar(3)");
+            Map(x => x.Koleta).CustomSqlType("decimal(19,6)");
+            Map(x => x.PoreskaStopa);
+            Map(x => x.PoreskaOznaka).CustomSqlType("char(2)");
+            Map(x => x.Rabat1).CustomSqlType("numeric(8,2)");
+            Map(x => x.Rabat2).CustomSqlType("numeric(8,2)");
+            Map(x => x.Rabat3).CustomSqlType("numeric(8,2)");
+            Map(x => x.Rabat).Not.Update().Not.Insert();
+            Map(x => x.CenaBezPdv).CustomSqlType("float");
+            Map(x => x.Cena).CustomSqlType("decimal(12,2)");
+            References(x => x.Porudzbenica).Column("PorudzbenicaId").Cascade.None().Not.Update();
+            References(x => x.Ident).Column("IdentId").Cascade.None().Not.Update();
+        }
     }
-    protected override void MapSubClass()
-    {
-      Table("tPorudzbenicaStavka");
-      Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
-      Map(x=>x.Rbr);
-      Map(x=>x.Kolicina);
-      Map(x=>x.Jm).CustomSqlType("varchar(3)");
-      Map(x => x.Koleta).CustomSqlType("decimal(19,6)");
-      Map(x => x.PoreskaStopa);
-      Map(x => x.PoreskaOznaka).CustomSqlType("char(2)");
-      Map(x=>x.Rabat1).CustomSqlType("numeric(8,2)");
-      Map(x=>x.Rabat2).CustomSqlType("numeric(8,2)");
-      Map(x=>x.Rabat3).CustomSqlType("numeric(8,2)");
-      Map(x=>x.Rabat).Not.Update().Not.Insert();
-      Map(x => x.CenaBezPdv).CustomSqlType("float");
-      Map(x => x.Cena).CustomSqlType("decimal(12,2)");
-    }
-  }
 }

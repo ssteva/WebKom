@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using webkom.Helper.Kendo;
 using webkom.Models;
@@ -75,7 +76,7 @@ namespace webkom.Controllers.api
             {
                 var upit = _session.QueryOver<Subjekt>()
                   .Where(x => !x.Obrisan)
-                  .And(x => x.Kupac );
+                  .And(x => x.Kupac);
                 var res = upit.List<Subjekt>();
                 return Ok(res);
             }
@@ -90,22 +91,59 @@ namespace webkom.Controllers.api
         [Route("[Action]")]
         public ActionResult ListaKupacaCombo([FromBody] KendoRequest kr) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
         {
+            Subjekt subjekt = null;
+            Mesto Mesto = null;
+            Mesto MestoIsporuke = null;
+
+            //Subjekt platilac = null;
             var textInfo = CultureInfo.InvariantCulture.TextInfo;
-            var upit = _session.QueryOver<Subjekt>()
-              .Where(x => !x.Obrisan)
-              .And(x => x.Kupac);
+            var upit = _session.QueryOver<Subjekt>(() => subjekt)
+                .JoinAlias(x => x.Mesto, () => Mesto, JoinType.LeftOuterJoin)
+                .JoinAlias(x => x.MestoIsporuke, () => MestoIsporuke, JoinType.LeftOuterJoin)
+                //.JoinAlias(x => x.Platilac, () => platilac, JoinType.LeftOuterJoin)
+                .Where(x => !x.Obrisan)
+                .And(x => x.Kupac);
             upit.Take(20);
             try
             {
                 if (kr.Filter != null && kr.Filter.Filters.Any())
                 {
-                    foreach (FilterDescription filter in kr.Filter.Filters)
+                    if (kr.Filter.Logic.ToLower() == "and")
                     {
-                        if (!string.IsNullOrEmpty(filter.Value))
+                        foreach (FilterDescription filter in kr.Filter.Filters)
                         {
-                            var prop = textInfo.ToTitleCase(filter.Field);
-                            upit.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                var prop = textInfo.ToTitleCase(filter.Field);
+                                if (filter.Operator.ToLower() == "contains")
+                                {
+                                    upit.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                                }
+                            }
                         }
+                    }
+                    else //or
+                    {
+                        var disjunction = new Disjunction();
+                        var ok = false;
+                        foreach (FilterDescription filter in kr.Filter.Filters)
+                        {
+
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+
+                                var prop = textInfo.ToTitleCase(filter.Field);
+                                if (filter.Operator.ToLower() == "contains")
+                                {
+                                    //upit.And(Restrictions.Disjunction().Add(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere)));
+                                    //disjunction.Add(Restrictions.On<Subjekt>(e=>e.Naziv).IsLike(filter.Value,MatchMode.Anywhere));
+                                    disjunction.Add(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                                    ok = true;
+                                }
+                            }
+                        }
+                        if (ok)
+                            upit.And(disjunction);
                     }
                 }
                 upit.OrderBy(x => x.Naziv);
@@ -119,26 +157,85 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
-                [HttpPost]
+        [HttpGet]
+        [Route("[Action]")]
+        public ActionResult ListaKupacaComboSp(string filter, int? id) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
+        {
+            try
+            {
+                var upit = _session.CreateSQLQuery("exec filKupacMesto :filter, :id");
+                upit.SetParameter("filter", filter, NHibernateUtil.String);
+                upit.SetParameter("id", id, NHibernateUtil.Int32);
+                upit.AddEntity(typeof(Subjekt));
+                var res = upit.List<Subjekt>();
+                return Ok(res);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.InnerException.Message);
+                return BadRequest();
+            }
+        }
+       
+
+        [HttpPost]
         [Route("[Action]")]
         public ActionResult ListaMestaIsporukeCombo([FromBody] KendoRequest kr) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
         {
+            Subjekt subjekt = null;
+            Mesto Mesto = null;
+            Mesto MestoIsporuke = null;
+
+            Subjekt platilac = null;
             var textInfo = CultureInfo.InvariantCulture.TextInfo;
-            var upit = _session.QueryOver<Subjekt>()
-              .Where(x => !x.Obrisan)
-              .And(x => x.Kupac);
+            var upit = _session.QueryOver<Subjekt>(() => subjekt)
+                .JoinAlias(x => x.Mesto, () => Mesto, JoinType.LeftOuterJoin)
+                .JoinAlias(x => x.MestoIsporuke, () => MestoIsporuke, JoinType.LeftOuterJoin)
+                .JoinAlias(x => x.Platilac, () => platilac, JoinType.LeftOuterJoin)
+                .Where(x => !x.Obrisan)
+                .And(x => x.Kupac);
             upit.Take(20);
             try
             {
                 if (kr.Filter != null && kr.Filter.Filters.Any())
                 {
-                    foreach (FilterDescription filter in kr.Filter.Filters)
+                    if (kr.Filter.Logic.ToLower() == "and")
                     {
-                        if (!string.IsNullOrEmpty(filter.Value))
+                        foreach (FilterDescription filter in kr.Filter.Filters)
                         {
-                            var prop = textInfo.ToTitleCase(filter.Field);
-                            upit.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                var prop = textInfo.ToTitleCase(filter.Field);
+                                if (filter.Operator.ToLower() == "contains")
+                                {
+                                    upit.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                                }
+                            }
                         }
+                    }
+                    else //or
+                    {
+                        var disjunction = new Disjunction();
+                        var ok = false;
+                        foreach (FilterDescription filter in kr.Filter.Filters)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                var prop = textInfo.ToTitleCase(filter.Field);
+                                if (prop.ToLower().Contains("platilac") && filter.Operator.ToLower() == "eq")
+                                {
+                                    upit.And(Restrictions.Eq(prop, int.Parse(filter.Value)));
+                                }
+                                if (filter.Operator.ToLower() == "contains")
+                                {
+                                    disjunction.Add(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                                    ok = true;
+                                }
+                            }
+                        }
+                        if (ok)
+                            upit.And(disjunction);
                     }
                 }
                 upit.OrderBy(x => x.Naziv);
