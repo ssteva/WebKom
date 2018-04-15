@@ -19,8 +19,8 @@ import {
 import 'kendo/js/kendo.grid';
 import 'kendo/js/kendo.dropdownlist';
 import * as toastr from 'toastr';
-
-@inject(AuthService, EntityManager, DialogService, Endpoint.of())
+import {Common} from 'helper/common';
+@inject(AuthService, EntityManager, DialogService, Endpoint.of(), Common)
 export class Korisnici {
   roles = ["Komercijalista", "Supervizor", "Administrator"];
   pageable = {
@@ -63,11 +63,12 @@ export class Korisnici {
     }
   }
 
-  constructor(authService, em, dialogService, repo) {
+  constructor(authService, em, dialogService, repo, common) {
     this.authService = authService;
     this.repo = repo;
     this.repoKorisnik = em.getRepository('korisnik');
     this.dialogService = dialogService;
+    this.common = common;
     let payload = this.authService.getTokenPayload();
     if (payload) {
       this.korisnik = payload.unique_name;

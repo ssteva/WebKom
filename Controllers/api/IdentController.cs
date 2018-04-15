@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using webkom.Helper.Kendo;
 using webkom.Models;
@@ -36,26 +37,14 @@ namespace webkom.Controllers.api
         }
 
         [Route("[Action]")]
-        public ActionResult ListaCombo([FromBody] KendoRequest kr)
+        [HttpGet]
+        public ActionResult ListaCombo(string filter)
         {
-            var textInfo = CultureInfo.InvariantCulture.TextInfo;
-            var upit = _session.QueryOver<Ident>()
-              .Where(x => !x.Obrisan);
-            upit.Take(20);
             try
             {
-                if (kr.Filter != null && kr.Filter.Filters.Any())
-                {
-                    foreach (FilterDescription filter in kr.Filter.Filters)
-                    {
-                        if (!string.IsNullOrEmpty(filter.Value))
-                        {
-                            var prop = textInfo.ToTitleCase(filter.Field);
-                            upit.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
-                        }
-                    }
-                }
-                upit.OrderBy(x => x.Naziv);
+                var upit = _session.CreateSQLQuery("exec filIdent :filter");
+                upit.SetParameter("filter", filter, NHibernateUtil.String);
+                upit.AddEntity(typeof(Ident));
                 var res = upit.List<Ident>();
                 return Ok(res);
             }

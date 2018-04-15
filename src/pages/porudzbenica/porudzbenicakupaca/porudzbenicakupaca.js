@@ -90,7 +90,11 @@ export class Porudzbenica {
       batch: false,
       transport: {
         read: (o) => {
-          this.repo.post('ident/ListaCombo', o.data)
+          let filter = "";
+          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+            filter = o.data.filter.filters[0].value;
+          }
+          this.repo.find('ident/ListaCombo&filter='+filter)
             .then(result => {
               o.success(result);
             })
@@ -118,6 +122,7 @@ export class Porudzbenica {
         this.porudzbenica = res[0];
         this.porudzbenicastavka = res[1];
         if(params.id==="0"){
+          this.porudzbenicastavka.edit = true;
           this.porudzbenica.stavke.push(this.porudzbenicastavka);
         }
         
@@ -189,5 +194,8 @@ export class Porudzbenica {
     //   e.preventDefault();
     // }
     // e.preventDefault();
+  }
+  onIdentSelect(e){
+
   }
 }

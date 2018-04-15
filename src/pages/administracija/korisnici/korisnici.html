@@ -3,7 +3,7 @@
     <button style="margin-top:40px" class="btn btn-primary" click.delegate="noviKorisnik()">Novi korisnik</button>
     <br />
     <br />
-    <ak-grid k-widget.bind="grid" k-data-source.bind="datasource" k-pageable.bind="pageable" k-filterable.bind="filterobj" k-sortable.bind="true">
+    <ak-grid k-widget.bind="grid" k-data-source.bind="datasource" k-pageable.bind="common.pageable" k-filterable.bind="common.filterobj" k-sortable.bind="true">
       <!-- Column definitions in HTML -->
       <ak-col k-title="Ime" k-field="ime">
         <ak-template>

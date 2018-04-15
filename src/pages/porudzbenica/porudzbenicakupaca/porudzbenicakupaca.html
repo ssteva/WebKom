@@ -11,11 +11,9 @@
     <div class="col-lg-4">
       <div class="form-group">
         <label for="kupac">Kupac</label>
-        <ak-combobox k-data-source.bind="dsKupac" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboKupac" k-filter="contains"
-          k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.kupac.id" 
-          k-on-select.delegate="onKupacSelect($event.detail)"
-          k-on-filtering.delegate="onKupacFiltering($event.detail, $this)"
-          k-on-open.delegate="onKupacOpen($event.detail, $this)"
+        <ak-combobox k-data-source.bind="dsKupac" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboKupac"
+          k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.kupac.id" k-on-select.delegate="onKupacSelect($event.detail)"
+          k-on-filtering.delegate="onKupacFiltering($event.detail, $this)" k-on-open.delegate="onKupacOpen($event.detail, $this)"
           style="width: 100%">
           <ak-template>
             <span>${sifra}</span>
@@ -38,12 +36,10 @@
     <div class="col-lg-4">
       <div class="form-group">
         <label for="mestoisporuke">Mesto isporuke</label>
-        <ak-combobox k-data-source.bind="dsMestoIsporuke" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboMestoIsporuke"
-          k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.mestoIsporuke.id" 
-            k-on-select.delegate="onMestoIsporukeSelect($event.detail)"
-            k-on-filtering.delegate="onMestoIsporukeFiltering($event.detail, $this)"
-            k-on-open.delegate="onMestoIsporukeOpen($event.detail, $this)"
-          style="width: 100%">
+        <ak-combobox k-data-source.bind="dsMestoIsporuke" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id"
+          k-widget.bind="cboMestoIsporuke" k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.mestoIsporuke.id"
+          k-on-select.delegate="onMestoIsporukeSelect($event.detail)" k-on-filtering.delegate="onMestoIsporukeFiltering($event.detail, $this)"
+          k-on-open.delegate="onMestoIsporukeOpen($event.detail, $this)" style="width: 100%">
           <ak-template>
             <span>${sifra}</span>
           </ak-template>
@@ -75,18 +71,21 @@
           </ak-template>
         </ak-grid-toolbar>
         <ak-col k-title="Rbr" k-field="rbr" k-width="40px"></ak-col>
-        <ak-col k-title="Ident" k-field="ident.id" k-width="40px">
+        <ak-col k-title="Ident" k-field="ident.id">
           <ak-template>
-            
-            <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
-              k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="ident.id" k-on-select.delegate="onIdentSelect($event.detail)"
-              style="width: 100%">
-              <ak-template>
-                <span>${sifra}</span>
-              </ak-template>
-            </ak-combobox>
+            <div if.bind="edit">
+              <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
+                k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="ident.id" k-on-select.delegate="onIdentSelect($event.detail)"
+                style="width: 100%">
+                <ak-template>
+                  <span>${sifra}</span>
+                </ak-template>
+              </ak-combobox>
+            </div>
+            <div if.bind="!edit">
+              not edit
+            </div> 
           </ak-template>
-        
         </ak-col>
       </ak-grid>
     </div>
