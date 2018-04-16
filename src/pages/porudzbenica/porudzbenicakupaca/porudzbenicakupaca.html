@@ -76,6 +76,7 @@
             <div if.bind="edit">
               <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
                 k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="ident.id" k-on-select.delegate="onIdentSelect($event.detail)"
+                k-on-open.delegate="onIdentOpen($event.detail, $this)"
                 style="width: 100%">
                 <ak-template>
                   <span>${sifra}</span>

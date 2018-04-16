@@ -94,7 +94,7 @@ export class Porudzbenica {
           if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
             filter = o.data.filter.filters[0].value;
           }
-          this.repo.find('ident/ListaCombo&filter='+filter)
+          this.repo.find('ident/ListaCombo?filter='+filter)
             .then(result => {
               o.success(result);
             })
@@ -197,5 +197,9 @@ export class Porudzbenica {
   }
   onIdentSelect(e){
 
+  }
+  onIdentOpen (e, dis){
+    e.sender.dataSource.read()
+    //this.cboKupac.refresh();
   }
 }
