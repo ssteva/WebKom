@@ -140,7 +140,7 @@ export class Porudzbenica {
   }
   onMestoIsporukeSelect (e){
     let dataItem = this.cboMestoIsporuke.dataItem(e.item);
-    if(!this.porudzbenica.kupac.id){
+    if(!this.porudzbenica.kupac){
       if(dataItem && dataItem.platilac){
         this.porudzbenica.kupac = dataItem.platilac;
       }
@@ -195,8 +195,12 @@ export class Porudzbenica {
     // }
     // e.preventDefault();
   }
-  onIdentSelect(e){
-
+  onIdentSelect(e, porsta){
+    let dataItem = e.sender.dataItem(e.item);
+    if(dataItem){
+      porsta.jm = dataItem.jm;
+      porsta.koleta = dataItem.koleta;
+    }
   }
   onIdentOpen (e, dis){
     e.sender.dataSource.read()
