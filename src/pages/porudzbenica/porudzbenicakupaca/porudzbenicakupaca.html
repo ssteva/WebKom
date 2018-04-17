@@ -57,8 +57,7 @@
   </div>
   <br>
   <br>
-  <br>
-  Kupac id ${porudzbenica.kupac.id}
+  <br> Kupac id ${porudzbenica.kupac.id}
   <br>
   <hr>
   <div class="row">
@@ -77,8 +76,7 @@
             <div if.bind="edit">
               <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
                 k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="ident.id" k-on-select.delegate="onIdentSelect($event.detail, $this)"
-                k-on-open.delegate="onIdentOpen($event.detail)"
-                style="width: 100%">
+                k-on-open.delegate="onIdentOpen($event.detail)" >
                 <ak-template>
                   <span>${sifra}</span>
                 </ak-template>
@@ -86,22 +84,31 @@
             </div>
             <div if.bind="!edit">
               not edit
-            </div> 
+            </div>
           </ak-template>
         </ak-col>
         <ak-col k-title="JM" k-field="jm">
           <ak-template>
-              <input if.bind="edit" value.bind="jm" class="form-control form-control-sm" type="text" placeholder="jedinica mere" style="width:100%">
+            <input if.bind="edit" value.bind="jm" class="form-control form-control-sm" type="text" placeholder="jedinica mere">
             <span if.bind="!edit">${jm}</span>
           </ak-template>
         </ak-col>
         <ak-col k-title="Koleta" k-field="koleta">
-            <ak-template>
-                <input if.bind="edit" value.bind="koleta" class="form-control form-control-sm" type="text" placeholder="koleta" style="width:100%">
-              <span if.bind="!edit">${koleta}</span>
-            </ak-template>
-          </ak-col>
+          <ak-template>
+            <input if.bind="edit" value.bind="koleta" class="form-control form-control-sm" type="text" placeholder="koleta" >
+            <span if.bind="!edit">${koleta}</span>
+          </ak-template>
+        </ak-col>
+        <ak-col k-title="Opcije" k-field="edit">
+          <ak-template>
+            <button class='btn btn-sm' style='background-color:transparent;'>
+              <i class="fa fa-pencil"></i> Edit
+            </button>
+          </ak-template>
+        </ak-col>
       </ak-grid>
+     
+     
     </div>
   </div>
   <br>
