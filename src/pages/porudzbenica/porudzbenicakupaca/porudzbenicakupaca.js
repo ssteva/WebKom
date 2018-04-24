@@ -4,6 +4,7 @@ import {AuthService} from 'aurelia-authentication';
 import {DialogController, DialogService} from 'aurelia-dialog';
 import {DataCache} from 'helper/datacache';
 import {Common} from 'helper/common';
+import {computedFrom} from 'aurelia-framework';
 import 'kendo/js/kendo.combobox';
 import 'kendo/js/kendo.datepicker';
 import 'kendo/js/kendo.grid';
@@ -133,10 +134,16 @@ export class Porudzbenica {
       .catch(err => toastr.error(err.statusText));
   }
   afterAttached(){
-    this.refresh();
+    this.refresh(this.grid);
   }
-  refresh(){
-    this.grid.dataSource.data(this.porudzbenica.stavke);
+  refresh(g){
+    if(this.porudzbenica){
+      this.dsGrid = new kendo.data.DataSource({
+        data: this.porudzbenica.stavke,
+        pageSize: 50
+      });
+      g.setDataSource(this.dsGrid);
+    }
   }
   onMestoIsporukeSelect (e){
     let dataItem = this.cboMestoIsporuke.dataItem(e.item);
@@ -205,5 +212,49 @@ export class Porudzbenica {
   onIdentOpen (e, dis){
     e.sender.dataSource.read()
     //this.cboKupac.refresh();
+  }
+
+  kalkulacijaCene(porudzbenicastavka){
+    try {
+      let cena = porudzbenicastavka.cena;
+      if(!porudzbenicastavka.rabat1){
+        porudzbenicastavka.cena = cena;
+      }
+      
+      let cena1 =  cena * (1 - porudzbenicastavka.rabat1 / 100);
+      
+      if(!porudzbenicastavka.rabat2){
+        porudzbenicastavka.cena = cena1;
+      }
+      let cena2 = cena1 - (porudzbenicastavka.rabat2 / 100);
+
+      if(!porudzbenicastavka.rabat3){
+        porudzbenicastavka.cena = cena2;
+      }
+      let cena3 = cena2 - (porudzbenicastavka.rabat3 / 100);
+      porudzbenicastavka.cena = cena3;
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+  izmeniInline(obj, e) {
+    obj.edit = true;
+    this.grid.refresh(this.grid);
+  }
+  potvrdi(obj, e) {
+    if (confirm("Da li želite da snimite izmene?")) {
+      this.repo.post('Porudzbenica', this.porudzbenica)
+        .then(res => {
+          toastr.success("Uspešno snimljeno");
+          this.grid.dataSource.read();
+        })
+        .error(err => toastr.error(err.statusText));
+    }
+  }
+  otkazi(obj, e) {
+    this.grid.dataSource.read();
   }
 }
