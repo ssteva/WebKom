@@ -39,6 +39,7 @@ namespace webkom.Models
         public virtual decimal Rabat { get; set; }
         public virtual decimal CenaBezPdv { get; set; }
         public virtual decimal Cena { get; set; }
+        public virtual decimal KonacnaCena { get; set; }
     }
 }
 
