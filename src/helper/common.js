@@ -3,6 +3,7 @@
 //import {EntityManager} from 'aurelia-orm';
 //@inject(Endpoint.of())
 export class Common {
+  roles = ["Komercijalista", "Supervizor", "Administrator"];
   pageable = {
     messages: {
       display: "{0} - {1} of {2} redova", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records

@@ -103,30 +103,35 @@
         <ak-col k-title="Rabat 1" k-field="rabat1" k-width="100px">
           <ak-template>
             <input id="numRabat1" if.bind="edit" class="form-control form-control-sm" type="text" placeholder="rabat 1" style="max-width:60px;"
-            type="number" ak-numerictextbox="k-value.two-way: rabat1;k-format.bind:'n0'; k-min.bind:0; k-max.bind:99; k-step.bind:1"
-            k-on-change.delegate="kalkulacijaCene($this)" k-on-spin.delegate="kalkulacijaCene($this)">
+              type="number" ak-numerictextbox="k-value.two-way: rabat1;k-format.bind:'n0'; k-min.bind:0; k-max.bind:99; k-step.bind:1"
+              k-on-change.delegate="kalkulacijaCene($this)" k-on-spin.delegate="kalkulacijaCene($this)">
             <span if.bind="!edit">${rabat1}</span>
           </ak-template>
         </ak-col>
         <ak-col k-title="Rabat 2" k-field="rabat2" k-width="100px">
           <ak-template>
             <input id="numRabat2" if.bind="edit" class="form-control form-control-sm" type="text" placeholder="rabat 2" style="max-width:60px;"
-            type="number" ak-numerictextbox="k-value.bind: rabat2;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1"
-            k-on-change.delegate="kalkulacijaCene()" k-on-spin.delegate="kalkulacijaCene()">
+              type="number" ak-numerictextbox="k-value.two-way: rabat2;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1"
+              k-on-change.delegate="kalkulacijaCene($this)" k-on-spin.delegate="kalkulacijaCene($this)">
             <span if.bind="!edit">${rabat2}</span>
           </ak-template>
         </ak-col>
         <ak-col k-title="Rabat 3" k-field="rabat3" k-width="100px">
           <ak-template>
             <input id="numRabat3" if.bind="edit" class="form-control form-control-sm" type="text" placeholder="rabat 3" style="max-width:60px;"
-            type="number" ak-numerictextbox="k-value.bind: rabat3;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1"
-            k-on-change.delegate="kalkulacijaCene()" k-on-spin.delegate="kalkulacijaCene()">
+              type="number" ak-numerictextbox="k-value.two-way: rabat3;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1"
+              k-on-change.delegate="kalkulacijaCene($this)" k-on-spin.delegate="kalkulacijaCene($this)">
             <span if.bind="!edit">${rabat3}</span>
           </ak-template>
         </ak-col>
         <ak-col k-title="Cena" k-field="cena" k-width="100px">
           <ak-template>
             <input value.bind="cena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled style="max-width:30px;">
+          </ak-template>
+        </ak-col>
+        <ak-col k-title="Konačna cena" k-field="konacnaCena" k-width="100px">
+          <ak-template>
+            <input value.bind="konacnaCena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled style="max-width:30px;">
           </ak-template>
         </ak-col>
         <ak-col k-title="Opcije" k-field="edit">

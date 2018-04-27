@@ -4,7 +4,7 @@ import {AuthService} from 'aurelia-authentication';
 import {DialogController, DialogService} from 'aurelia-dialog';
 import {DataCache} from 'helper/datacache';
 import {Common} from 'helper/common';
-import {computedFrom} from 'aurelia-framework';
+import {computedFrom, observable} from 'aurelia-framework';
 import 'kendo/js/kendo.combobox';
 import 'kendo/js/kendo.datepicker';
 import 'kendo/js/kendo.grid';
@@ -12,8 +12,9 @@ import * as toastr from 'toastr';
 
 @inject(AuthService, DataCache, Common, DialogService, Endpoint.of())
 export class Porudzbenica {
-  roles = ["Komercijalista", "Supervizor", "Administrator"];
+  
   porudzbenica = null;
+  porudzbenicastavka = null;
   skladista = [];
   odeljenja = [];
   constructor(authService, dc, common, dialogService, repo) {
@@ -22,6 +23,7 @@ export class Porudzbenica {
     this.dialogService = dialogService;
     this.dc = dc;
     this.common = common;
+    this.roles = this.common.roles;
     let payload = this.authService.getTokenPayload();
     if (payload) {
       this.korisnik = payload.unique_name;
@@ -214,37 +216,43 @@ export class Porudzbenica {
     //this.cboKupac.refresh();
   }
 
-  kalkulacijaCene(porudzbenicastavka){
+  kalkulacijaCene(e, porudzbenicastavka){
     try {
       let cena = porudzbenicastavka.cena;
       if(!porudzbenicastavka.rabat1){
-        porudzbenicastavka.cena = cena;
+        porudzbenicastavka.konacnaCena = cena;
       }
       
       let cena1 =  cena * (1 - porudzbenicastavka.rabat1 / 100);
       
       if(!porudzbenicastavka.rabat2){
-        porudzbenicastavka.cena = cena1;
+        porudzbenicastavka.konacnaCena = cena1;
       }
-      let cena2 = cena1 - (porudzbenicastavka.rabat2 / 100);
+      let cena2 = cena1 *  (1 - porudzbenicastavka.rabat2 / 100);
 
       if(!porudzbenicastavka.rabat3){
-        porudzbenicastavka.cena = cena2;
+        porudzbenicastavka.konacnaCena = cena2;
       }
-      let cena3 = cena2 - (porudzbenicastavka.rabat3 / 100);
-      porudzbenicastavka.cena = cena3;
+      let cena3 = cena2 * (1 - porudzbenicastavka.rabat3 / 100);
+      porudzbenicastavka.konacnaCena = cena3;
 
     } catch (error) {
       console.log(error);
     }
   }
+  potvrdi(obj, e) {
 
-
+  }
   izmeniInline(obj, e) {
     obj.edit = true;
     this.grid.refresh(this.grid);
   }
-  potvrdi(obj, e) {
+
+  otkazi(obj, e) {
+    this.grid.dataSource.read();
+    this.proba = "Novo";
+  }
+  snimi(obj, e) {
     if (confirm("Da li želite da snimite izmene?")) {
       this.repo.post('Porudzbenica', this.porudzbenica)
         .then(res => {
@@ -253,8 +261,5 @@ export class Porudzbenica {
         })
         .error(err => toastr.error(err.statusText));
     }
-  }
-  otkazi(obj, e) {
-    this.grid.dataSource.read();
   }
 }
