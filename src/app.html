@@ -19,6 +19,7 @@
 
     <!-- Begin page content -->
     <main role="main" class="container-fluid" >
+        <loading-indicator loading.bind="router.isNavigating"></loading-indicator>
         <router-view></router-view>
     </main>
 

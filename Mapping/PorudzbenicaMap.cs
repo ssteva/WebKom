@@ -21,6 +21,7 @@ namespace webkom.Mapping
             Table("tPorudzbenica");
             Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
             Map(x => x.Vrsta).CustomSqlType("varchar(20)");
+            Map(x => x.Sifra).CustomSqlType("varchar(20)");
             Map(x => x.Broj);
             Map(x => x.BrojPanteon).CustomSqlType("varchar(50)");
             Map(x => x.Datum).CustomSqlType("date");
@@ -33,6 +34,7 @@ namespace webkom.Mapping
             Map(x => x.DatumDokument1).CustomSqlType("date");
             Map(x => x.DatumDokument2).CustomSqlType("date");
             Map(x => x.StatusPanteon);
+            Map(x => x.Uid);
             References(x => x.Valuta).Cascade.None().Not.Update().LazyLoad();
             References(x => x.NacinDostave).Cascade.None().Not.Update();
             References(x => x.NacinPlacanja).Cascade.None().Not.Update();

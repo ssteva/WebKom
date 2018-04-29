@@ -56,5 +56,24 @@ namespace webkom.Controllers.api
             }
         }
 
+        [Route("[Action]")]
+        [HttpGet]
+        public ActionResult getPrice(int id)
+        {
+            try
+            {
+                var upit = _session.CreateSQLQuery("exec getPrice :id");
+                upit.SetParameter("id", id, NHibernateUtil.String);
+                upit.AddScalar("cena", NHibernateUtil.Decimal);
+                var res = upit.List<decimal>().Single();
+                return Ok(res);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.InnerException.Message);
+                return BadRequest();
+            }
+        }
     }
 }

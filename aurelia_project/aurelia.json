@@ -218,6 +218,14 @@
             "main": "popper.js"
           },
           {
+            "name": "nprogress",
+            "main": "nprogress",
+            "path": "../node_modules/nprogress",
+            "resources": [
+              "nprogress.css"
+            ]
+          },
+          {
             "name": "aurelia-after-attached-plugin",
             "main": "aurelia-after-attached-plugin",
             "path": "../node_modules/aurelia-after-attached-plugin/dist/amd",

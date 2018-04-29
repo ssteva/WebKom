@@ -9,21 +9,22 @@ import 'kendo/js/kendo.combobox';
 import 'kendo/js/kendo.datepicker';
 import 'kendo/js/kendo.grid';
 import * as toastr from 'toastr';
-
-@inject(AuthService, DataCache, Common, DialogService, Endpoint.of())
+import {EventAggregator} from 'aurelia-event-aggregator';
+@inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator)
 export class Porudzbenica {
   
   porudzbenica = null;
   porudzbenicastavka = null;
   skladista = [];
   odeljenja = [];
-  constructor(authService, dc, common, dialogService, repo) {
+  constructor(authService, dc, common, dialogService, repo, eventAggregator) {
     this.authService = authService;
     this.repo = repo;
     this.dialogService = dialogService;
     this.dc = dc;
     this.common = common;
     this.roles = this.common.roles;
+    this.eventAggregator = eventAggregator;
     let payload = this.authService.getTokenPayload();
     if (payload) {
       this.korisnik = payload.unique_name;
@@ -39,13 +40,14 @@ export class Porudzbenica {
             filter = o.data.filter.filters[0].value;
           }
           var id = this.porudzbenica.kupac ? this.porudzbenica.kupac.id : null;
-          this.repo.find('Subjekat/ListaKupacaComboSp?filter='+ filter + "&id=" + id  )
+          this.repo.find('Subjekat/ListaKupacaComboSp?filter=' + filter + "&id=" + id)
             .then(result => {
               o.success(result);
             })
             .catch(err => {
               console.log(err.statusText);
             });
+
         }
       },
       serverPaging: true,
@@ -123,10 +125,9 @@ export class Porudzbenica {
     return Promise.all(promises)
       .then(res => {
         this.porudzbenica = res[0];
-        this.porudzbenicastavka = res[1];
+        this.porudzbenicastavkaprazna = res[1];
         if(params.id==="0"){
-          this.porudzbenicastavka.edit = true;
-          this.porudzbenica.stavke.push(this.porudzbenicastavka);
+          this.novaStavka();
         }
         
         this.skladista = res[2];
@@ -136,9 +137,12 @@ export class Porudzbenica {
       .catch(err => toastr.error(err.statusText));
   }
   afterAttached(){
-    this.refresh(this.grid);
+    this.setGridDataSource(this.grid);
+    this.subscription = this.eventAggregator.subscribe('loader', payload => {
+      this.loading = payload;
+  });
   }
-  refresh(g){
+  setGridDataSource(g){
     if(this.porudzbenica){
       this.dsGrid = new kendo.data.DataSource({
         data: this.porudzbenica.stavke,
@@ -146,6 +150,15 @@ export class Porudzbenica {
       });
       g.setDataSource(this.dsGrid);
     }
+  }
+  novaStavka(){
+    this.porudzbenicastavka =  JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
+    this.porudzbenicastavka.edit = true;
+    this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
+    this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1,this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
+    this.porudzbenica.stavke.push(this.porudzbenicastavka);
+    if (this.grid) this.grid.dataSource.read();
+    //this.refresh(this.grid);
   }
   onMestoIsporukeSelect (e){
     let dataItem = this.cboMestoIsporuke.dataItem(e.item);
@@ -209,6 +222,13 @@ export class Porudzbenica {
     if(dataItem){
       porsta.jm = dataItem.jm;
       porsta.koleta = dataItem.koleta;
+
+      this.repo.find("Ident/GetPrice?id=" + dataItem.id)
+        .then(res=>{
+          porsta.cena = res;
+          porsta.konacnaCena = res;
+        })
+        .error(err => toastr.error(err.statusText));
     }
   }
   onIdentOpen (e, dis){
@@ -216,41 +236,62 @@ export class Porudzbenica {
     //this.cboKupac.refresh();
   }
 
-  kalkulacijaCene(e, porudzbenicastavka){
+  onRabatChange(porudzbenicastavka, e){
+    let rabat1 = porudzbenicastavka.rabat1;
+    let rabat2 = porudzbenicastavka.rabat2;
+    let rabat3 = porudzbenicastavka.rabat3;
+    switch(e.sender.element[0].id){
+      case "numRabat1": rabat1 = e.sender.value(); break;
+      case "numRabat2": rabat2 = e.sender.value(); break;
+      case "numRabat3": rabat3 = e.sender.value(); break;
+    }
+    this.kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3);
+  }
+
+  kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3){
     try {
       let cena = porudzbenicastavka.cena;
-      if(!porudzbenicastavka.rabat1){
+      if (!rabat1) {
         porudzbenicastavka.konacnaCena = cena;
       }
-      
-      let cena1 =  cena * (1 - porudzbenicastavka.rabat1 / 100);
-      
-      if(!porudzbenicastavka.rabat2){
+
+      let cena1 = cena * (1 - rabat1 / 100);
+
+      if (!rabat2 && cena1) {
         porudzbenicastavka.konacnaCena = cena1;
       }
-      let cena2 = cena1 *  (1 - porudzbenicastavka.rabat2 / 100);
+      let cena2 = cena1 * (1 - rabat2 / 100);
 
-      if(!porudzbenicastavka.rabat3){
+      if (!rabat3 && cena2) {
         porudzbenicastavka.konacnaCena = cena2;
       }
-      let cena3 = cena2 * (1 - porudzbenicastavka.rabat3 / 100);
-      porudzbenicastavka.konacnaCena = cena3;
+      let cena3 = cena2 * (1 - rabat3 / 100);
+
+      if (cena3) {
+        porudzbenicastavka.konacnaCena = cena3;
+      }
 
     } catch (error) {
       console.log(error);
     }
-  }
-  potvrdi(obj, e) {
 
   }
-  izmeniInline(obj, e) {
+  potvrdi(obj, e) {
+    obj.edit = false;
+  }
+  izmeni(obj, e) {
     obj.edit = true;
-    this.grid.refresh(this.grid);
+    this.grid.dataSource.read();
+    //this.grid.refresh(this.grid);
   }
 
   otkazi(obj, e) {
-    this.grid.dataSource.read();
-    this.proba = "Novo";
+    let index = this.porudzbenica.stavke.indexOf(obj);
+    if(index !== -1 && obj.id===0){
+      this.porudzbenica.stavke.splice(index,1);
+      this.grid.dataSource.read();
+    }
+    
   }
   snimi(obj, e) {
     if (confirm("Da li želite da snimite izmene?")) {

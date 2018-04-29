@@ -2,8 +2,12 @@ import environment from './environment';
 import authConfig from './config/auth';
 import * as entiteti from './config/entities';
 import {AuthService} from 'aurelia-authentication';
+import {EventAggregator} from 'aurelia-event-aggregator';
+
+
 
 export function configure(aurelia) {
+  let ea = aurelia.container.get(EventAggregator);
   aurelia.use
     .standardConfiguration()
     .feature('resources')
@@ -27,10 +31,12 @@ export function configure(aurelia) {
               })
               configure.withInterceptor({
                   request(request) {
+                      ea.publish('loader', true);
                       return request;
                       // you can return a modified Request, or you can short-circuit the request by returning a Response
                   },
                   response(response) {
+                      ea.publish('loader', false);
                       return response; // you can return a modified Response
                       //return response.json().then(Promise.reject.bind(Promise));
 

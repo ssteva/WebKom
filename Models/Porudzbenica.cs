@@ -15,6 +15,7 @@ namespace webkom.Models
         }
         public virtual int Id { get; set; }
         public virtual string Vrsta { get; set; }
+        public virtual string Sifra { get; set; }
         public virtual int Broj { get; set; }
         public virtual string BrojPanteon { get; set; }
         public virtual DateTime Datum { get; set; }
@@ -30,6 +31,7 @@ namespace webkom.Models
         public virtual string KontaktOsobaKupca {get;set;}
         public virtual string KontaktOsobaMestaIsporuke {get;set;}
         public virtual int StatusPanteon {get;set;}
+        public virtual Guid? Uid {get;set;}
         public virtual DateTime? DatumDokument1 {get;set;}
         public virtual DateTime? DatumDokument2 {get;set;}
         public virtual Subjekt Kupac {get;set;}
