@@ -20,7 +20,7 @@ export class LoadingIndicator {
     if (newValue) {
       nprogress.start();
     } else {
-      //nprogress.done();
+      nprogress.done();
     }
   }
 }

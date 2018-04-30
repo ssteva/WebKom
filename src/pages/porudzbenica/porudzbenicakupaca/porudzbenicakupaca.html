@@ -93,24 +93,24 @@
         </ak-col>
         <ak-col k-title="Cena" k-field="cena" k-width="100px">
           <ak-template>
-            <input value.bind="cena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled style="max-width:30px;">
+            <input if.bind="ident.id" value.bind="cena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled style="max-width:30px;">
           </ak-template>
         </ak-col>
         <ak-col k-title="JM" k-field="jm" k-width="70px">
           <ak-template>
-            <input if.bind="edit" value.bind="jm" class="form-control form-control-sm" type="text" placeholder="JM" style="max-width:30px;">
+            <input if.bind="edit && ident.id" value.bind="jm" class="form-control form-control-sm" type="text" placeholder="JM" style="max-width:30px;">
             <span if.bind="!edit">${jm}</span>
           </ak-template>
         </ak-col>
         <ak-col k-title="Koleta" k-field="koleta" k-width="100px">
           <ak-template>
-            <input if.bind="edit" class="form-control form-control-sm" type="text" placeholder="koleta" style="max-width:30px;" type="number">
+            <input if.bind="edit && ident.id" class="form-control form-control-sm" type="text" placeholder="koleta" style="max-width:30px;" type="number">
             <span if.bind="!edit">${koleta}</span>
           </ak-template>
         </ak-col>
         <ak-col k-title="Rabat 1" k-field="rabat1" k-width="100px">
           <ak-template>
-            <div if.bind="edit">
+            <div if.bind="edit && ident.id">
               <input id="numRabat1" class="form-control form-control-sm" type="text" placeholder="rabat 1" style="max-width:60px;" type="number"
                 ak-numerictextbox="k-value.two-way: rabat1;k-format.bind:'n0'; k-min.bind:0; k-max.bind:99; k-step.bind:1"
                 k-on-change.delegate="onRabatChange($this, $event.detail)" k-on-spin.delegate="onRabatChange($this, $event.detail)">
@@ -120,7 +120,7 @@
         </ak-col>
         <ak-col k-title="Rabat 2" k-field="rabat2" k-width="100px">
           <ak-template>
-            <div if.bind="edit">
+            <div if.bind="edit && ident.id && rabat1">
               <input id="numRabat2" class="form-control form-control-sm" type="text" placeholder="rabat 2" style="max-width:60px;" type="number"
                 ak-numerictextbox="k-value.two-way: rabat2;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" k-on-change.delegate="onRabatChange($this, $event.detail)"
                 k-on-spin.delegate="onRabatChange($this, $event.detail)">
@@ -130,7 +130,7 @@
         </ak-col>
         <ak-col k-title="Rabat 3" k-field="rabat3" k-width="100px">
           <ak-template>
-            <div if.bind="edit">
+            <div if.bind="edit && ident.id && rabat2">
               <input id="numRabat3" class="form-control form-control-sm" type="text" placeholder="rabat 3" style="max-width:60px;" type="number"
                 ak-numerictextbox="k-value.two-way: rabat3;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" k-on-change.delegate="onRabatChange($this, $event.detail)"
                 k-on-spin.delegate="onRabatChange($this, $event.detail)">
@@ -140,7 +140,7 @@
         </ak-col>
         <ak-col k-title="Konačna cena" k-field="konacnaCena" k-width="100px">
           <ak-template>
-            <input value.bind="konacnaCena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled
+            <input if.bind="ident.id" value.bind="konacnaCena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled
               style="max-width:30px;">
           </ak-template>
         </ak-col>
