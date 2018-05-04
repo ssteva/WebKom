@@ -195,7 +195,7 @@
           },
           {
             "name": "mousetrap",
-            "main": "./mousetrap.js",
+            "main": "./mousetrap",
             "path": "../node_modules/mousetrap",
             "exports": "mousetrap",
             "resources": []
@@ -215,7 +215,7 @@
           {
             "name": "popper.js",
             "path": "../node_modules/popper.js/dist/umd",
-            "main": "popper.js"
+            "main": "popper"
           },
           {
             "name": "nprogress",
@@ -230,7 +230,15 @@
             "main": "aurelia-after-attached-plugin",
             "path": "../node_modules/aurelia-after-attached-plugin/dist/amd",
             "resources": []
+          },
+          {
+            "name": "jquery.dataTables",
+            "main": "jquery.dataTables",
+            "path": "../node_modules/datatables.net/js",
+            "resources": [
+            ]
           }
+
         ]
       }
     ],

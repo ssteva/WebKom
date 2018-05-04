@@ -12,8 +12,10 @@
       <div class="form-group">
         <label for="kupac">Kupac</label>
         <ak-combobox k-data-source.bind="dsKupac" k-auto-bind.bind="false" k-data-text-field="sifra" k-data-value-field="id" k-widget.bind="cboKupac"
-          k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.kupac.id" k-on-select.delegate="onKupacSelect($event.detail)"
-          k-on-filtering.delegate="onKupacFiltering($event.detail, $this)" k-on-open.delegate="onKupacOpen($event.detail, $this)"
+          k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.kupac.id" 
+          k-on-select.delegate="onKupacSelect($event.detail)"
+          k-on-open.delegate="onKupacOpen($event.detail, $this)"
+          k-on-change.delegate="onKupacChange($event.detail, $this)"
           style="width: 100%">
           <ak-template>
             <span>${sifra}</span>
@@ -38,7 +40,7 @@
         <label for="mestoisporuke">Mesto isporuke</label>
         <ak-combobox k-data-source.bind="dsMestoIsporuke" k-auto-bind.bind="false" k-data-text-field="sifra" k-data-value-field="id"
           k-widget.bind="cboMestoIsporuke" k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.mestoIsporuke.id"
-          k-on-select.delegate="onMestoIsporukeSelect($event.detail)" k-on-filtering.delegate="onMestoIsporukeFiltering($event.detail, $this)"
+          k-on-select.delegate="onMestoIsporukeSelect($event.detail)" 
           k-on-open.delegate="onMestoIsporukeOpen($event.detail, $this)" style="width: 100%">
           <ak-template>
             <span>${sifra}</span>
@@ -57,111 +59,107 @@
   </div>
   <br>
   <br>
-  <br> Kupac id ${porudzbenica.kupac.id}
+  <button class="btn btn-primary" click.delegate="snimi()">Snimi</button>
+  <br>
   <br>
   <hr>
   <div class="row">
     <div class="col-lg-12">
-      <ak-grid id="grid" k-widget.bind="grid" k-data-source.bind="dsGrid" k-pageable.bind="common.pageable" k-filterable.bind="false"
-        k-sortable.bind="true" k-excel.bind="{ fileName: 'PregledPorudzbenice.xlsx' }" style="width: 90%">
-        <ak-grid-toolbar>
-          <ak-template>
-            <button class="k-button k-button-icontext" href="javascript:void()" click.delegate="novaStavka()">
-              <span class="k-icon k-i-plus"></span>Nova stavka
-            </button>
-            <a class="k-button k-button-icontext k-grid-excel" href="javascript:void()">
-              <span class="k-icon k-i-excel"></span>Export to Excel
-            </a>
-          </ak-template>
-        </ak-grid-toolbar>
-        <ak-col k-title="#" k-field="rbr" k-width="40px"></ak-col>
-        <ak-col k-title="Ident" k-field="ident.id">
-          <ak-template>
-            <div if.bind="edit">
-              <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
-                k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="ident.id" k-on-select.delegate="onIdentSelect($event.detail, $this)"
-                k-on-open.delegate="onIdentOpen($event.detail)">
-                <ak-template>
-                  <span>${sifra}</span>
-                </ak-template>
-              </ak-combobox>
-            </div>
-            <div if.bind="!edit">
-              not edit
-            </div>
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Cena" k-field="cena" k-width="100px">
-          <ak-template>
-            <input if.bind="ident.id" value.bind="cena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled style="max-width:30px;">
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="JM" k-field="jm" k-width="70px">
-          <ak-template>
-            <input if.bind="edit && ident.id" value.bind="jm" class="form-control form-control-sm" type="text" placeholder="JM" style="max-width:30px;">
-            <span if.bind="!edit">${jm}</span>
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Koleta" k-field="koleta" k-width="100px">
-          <ak-template>
-            <input if.bind="edit && ident.id" class="form-control form-control-sm" type="text" placeholder="koleta" style="max-width:30px;" type="number">
-            <span if.bind="!edit">${koleta}</span>
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Rabat 1" k-field="rabat1" k-width="100px">
-          <ak-template>
-            <div if.bind="edit && ident.id">
-              <input id="numRabat1" class="form-control form-control-sm" type="text" placeholder="rabat 1" style="max-width:60px;" type="number"
-                ak-numerictextbox="k-value.two-way: rabat1;k-format.bind:'n0'; k-min.bind:0; k-max.bind:99; k-step.bind:1"
-                k-on-change.delegate="onRabatChange($this, $event.detail)" k-on-spin.delegate="onRabatChange($this, $event.detail)">
-            </div>
-            <span if.bind="!edit">${rabat1}</span>
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Rabat 2" k-field="rabat2" k-width="100px">
-          <ak-template>
-            <div if.bind="edit && ident.id && rabat1">
-              <input id="numRabat2" class="form-control form-control-sm" type="text" placeholder="rabat 2" style="max-width:60px;" type="number"
-                ak-numerictextbox="k-value.two-way: rabat2;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" k-on-change.delegate="onRabatChange($this, $event.detail)"
-                k-on-spin.delegate="onRabatChange($this, $event.detail)">
-            </div>
-            <span if.bind="!edit">${rabat2}</span>
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Rabat 3" k-field="rabat3" k-width="100px">
-          <ak-template>
-            <div if.bind="edit && ident.id && rabat2">
-              <input id="numRabat3" class="form-control form-control-sm" type="text" placeholder="rabat 3" style="max-width:60px;" type="number"
-                ak-numerictextbox="k-value.two-way: rabat3;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" k-on-change.delegate="onRabatChange($this, $event.detail)"
-                k-on-spin.delegate="onRabatChange($this, $event.detail)">
-            </div>
-            <span if.bind="!edit">${rabat3}</span>
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Konačna cena" k-field="konacnaCena" k-width="100px">
-          <ak-template>
-            <input if.bind="ident.id" value.bind="konacnaCena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled
-              style="max-width:30px;">
-          </ak-template>
-        </ak-col>
-        <ak-col k-title="Opcije" k-field="edit">
-          <ak-template>
-            <button if.bind="!edit" class="btn btn-primary btn-sm" click.delegate="izmeni($this, $event)">
-              <i class="fa fa-edit"> Izmeni modal</i>
-            </button>
-            <button if.bind="edit" class="btn btn-success btn-sm" click.delegate="potvrdi($this, $event)">
-              <i class="fa fa-check"> Potvrdi</i>
-            </button>
-            <button if.bind="edit" class="btn btn-danger btn-sm" click.delegate="otkazi($this, $event)">
-              <i class="fa fa-undo"> Poništi</i>
-            </button>
-          </ak-template>
-        </ak-col>
-      </ak-grid>
 
+      <div class="table-responsive-xl">
+        <table ref="tblstavke" class="table table-condensed table-striped table-sm" width="100%">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Ident</th>
+            <th>Količina</th>
+            <th>Cena</th>
+            <th>JM</th>
+            <th>Koleta</th>
+            <th>Rabat 1</th>
+            <th>Rabat 2</th>
+            <th>Rabat 3</th>
+            <th>Rabat</th>
+            <th>Konačna cena</th>
+            <th>PDV stopa</th>
+            <th>PDV</th>
+            <th>Za plaćanje</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr repeat.for="stavka of porudzbenica.stavke">
+            <td>${stavka.rbr}</td>
+            <td>
+              <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
+                k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="stavka.ident.id" k-on-select.delegate="onIdentSelect($event.detail, $this)"
+                k-on-open.delegate="onIdentOpen($event.detail)">
+            </td>
+            <td>
+                <div if.bind="stavka.edit && stavka.ident.id">
+                    <input id="numPoruceno" class="form-control form-control-sm"  style="max-width:60px;"
+                      ak-numerictextbox="k-value.two-way: stavka.poruceno;k-format.bind:'n0'; k-min.bind:0;k-max.bind:1000;k-step.bind:1" 
+                      k-on-change.delegate="onRabatChange($this, $event.detail)"
+                      k-on-spin.delegate="onRabatChange($this, $event.detail)">
+                  </div>
+              </td>
+            <td>
+              <input if.bind="stavka.ident.id" value.bind="stavka.cena" class="form-control form-control-sm" type="text" type="number" disabled style="max-width:40px;">
+            </td>
+            <td>
+              <span if.bind="stavka.ident.id">${stavka.jm}</span>
+            </td>
+            <td>
+                <span if.bind="stavka.ident.id">${stavka.koleta}</span>
+            </td>
+            <td>
+                <div if.bind="stavka.edit && stavka.ident.id">
+                    <input id="numRabat1" class="form-control form-control-sm"  style="max-width:60px;"
+                      ak-numerictextbox="k-value.two-way: stavka.rabat1;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" 
+                      k-on-change.delegate="onRabatChange($this, $event.detail)"
+                      k-on-spin.delegate="onRabatChange($this, $event.detail)">
+                  </div>
+            </td>
+            <td>
+                <div if.bind="stavka.edit && stavka.ident.id && stavka.rabat1">
+                    <input id="numRabat2" class="form-control form-control-sm" type="text"  style="max-width:60px;" type="number"
+                      ak-numerictextbox="k-value.two-way: stavka.rabat2;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" 
+                      k-on-change.delegate="onRabatChange($this, $event.detail)"
+                      k-on-spin.delegate="onRabatChange($this, $event.detail)">
+                  </div>
+            </td>
+            <td>
+                <div if.bind="stavka.edit && stavka.ident.id && stavka.rabat3">
+                    <input id="numRabat3" class="form-control form-control-sm" type="text" placeholder="rabat 2" style="max-width:60px;" type="number"
+                      ak-numerictextbox="k-value.two-way: stavka.rabat3;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1" 
+                      k-on-change.delegate="onRabatChange($this, $event.detail)"
+                      k-on-spin.delegate="onRabatChange($this, $event.detail)">
+                  </div>
+            </td>
+            <td>
+                <span if.bind="stavka.ident.id">${stavka.rabat}</span>
+            </td>
+            <td>
+                <input if.bind="stavka.ident.id" value.bind="stavka.konacnaCena" class="form-control form-control-sm" type="text" placeholder="cena" type="number" disabled
+                style="max-width:70px;">
+            </td>
+            <td>
+              <span if.bind="stavka.ident.id">${stavka.poreskaStopa}</span>
+              
+            </td>
+            <td>
+                <span if.bind="stavka.ident.id">${stavka.poreskaOznaka}</span>
+            </td>
+          </tr>
+        </tbody>
+        
+    </table>
 
     </div>
   </div>
+  <br>
+  <br>
+  <br>
+  <br>
   <br>
   <br>
   <br>
