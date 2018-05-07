@@ -101,7 +101,29 @@ export class Porudzbenica {
           if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
             filter = o.data.filter.filters[0].value;
           }
-          this.repo.find('ident/ListaCombo?filter='+filter)
+          this.repo.find('Ident/ListaCombo?filter='+filter)
+            .then(result => {
+              o.success(result);
+            })
+            .catch(err => {
+              console.log(err.statusText);
+            });
+        }
+      },
+      serverPaging: true,
+      serverSorting: true,
+      serverFiltering: true,
+    });
+    this.dsOdeljenje = new kendo.data.DataSource({
+      pageSize: 10,
+      batch: false,
+      transport: {
+        read: (o) => {
+          let filter = "";
+          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+            filter = o.data.filter.filters[0].value;
+          }
+          this.repo.find('Subjekat/ListaOdeljenjaComboSp?filter='+ filter)
             .then(result => {
               o.success(result);
             })
@@ -146,6 +168,22 @@ export class Porudzbenica {
     //   info: false,
     //   searching: false
     // });
+    $('[data-toggle="tooltip"]').tooltip();
+    //wire focus of all numerictextbox widgets on the page
+    $("input[type=numeber]").on("focus", function () {
+      var input = $(this);
+          clearTimeout(input.data("selectTimeId")); //stop started time out if any
+
+          var selectTimeId = setTimeout(function()  {
+              input.select();
+              // To make this work on iOS, too, replace the above line with the following one. Discussed in https://stackoverflow.com/q/3272089
+              // input[0].setSelectionRange(0, 9999);
+          });
+
+          input.data("selectTimeId", selectTimeId);
+      }).blur(function(e) {
+          clearTimeout($(this).data("selectTimeId")); //stop started timeout
+      });
     this.subscription = this.eventAggregator.subscribe('loader', payload => {
       this.loading = payload;
   });
@@ -163,15 +201,21 @@ export class Porudzbenica {
     this.porudzbenicastavka =  JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
     this.porudzbenicastavka.edit = true;
     this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
+    if(this.porudzbenica.odeljenje)
+      this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
     this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1,this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
     this.porudzbenica.stavke.push(this.porudzbenicastavka);
-    
-    //if (this.grid) this.grid.dataSource.read();
-    //this.refresh(this.grid);
+    $('[data-toggle="tooltip"]').tooltip();
+  }
+  srediStavke(){
+
   }
   onMestoIsporukeSelect (e){
     let dataItem = this.cboMestoIsporuke.dataItem(e.item);
-    if(!this.porudzbenica.kupac){
+    if(dataItem){
+      this.porudzbenica.mestoIsporuke = dataItem;
+    }
+    if(!this.porudzbenica.kupac || !this.porudzbenica.kupac.id){
       if(dataItem && dataItem.platilac){
         this.porudzbenica.kupac = dataItem.platilac;
       }
@@ -202,6 +246,20 @@ export class Porudzbenica {
     
     //this.cboKupac.refresh();
   }
+  onOdeljenjeSelect (e){
+    let dataItem = this.cboOdeljenje.dataItem(e.item);
+    if(dataItem && dataItem.id){
+      this.porudzbenica.stavke.forEach((stavka)=>{
+        if(stavka.ident){
+          if(stavka.ident.id){
+            if(!stavka.odeljenje.id){
+              stavka.odeljenje = dataItem;
+            }
+          }
+        }
+      })
+    }
+  }
   // get novaStavkaOk(){
   //   if(!this.grid) return false;
   //   let found = this.grid.dataSource.data().find((element)=>element.edit);
@@ -215,10 +273,18 @@ export class Porudzbenica {
       obj.stavka.poreskaStopa = dataItem.poreskaStopa;
       obj.stavka.poreskaOznaka = dataItem.poreskaOznaka;
       obj.stavka.ident.naziv = dataItem.naziv;
+      if(!obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
+      
+      if (obj.stavka.rbr===this.porudzbenica.stavke.length) this.novaStavka();
+      
       this.repo.find("Ident/GetPrice?id=" + dataItem.id)
         .then(res=>{
           obj.stavka.cena = res;
           obj.stavka.konacnaCena = res;
+          obj.stavka.vrednost = obj.stavka.konacnaCena * obj.stavka.poruceno;
+          //if(this.txtPoruceno) this.txtPoruceno.focus();
+          let widget =  kendo.widgetInstance($("#numPoruceno" + obj.stavka.rbr), kendo.ui);
+          if(widget) widget.focus();
         })
         .error(err => toastr.error(err.statusText));
     }
@@ -227,7 +293,12 @@ export class Porudzbenica {
     e.sender.dataSource.read()
     this.cboKupac.refresh();
   }
+  onIdentChange(e, dis){
+    let dataItem = e.sender.dataItem(e.item);
+    if(!dataItem){
 
+    }
+  }
   onRabatChange(obj, e){
     let porudzbenicastavka = obj.stavka;
     let rabat1 = porudzbenicastavka.rabat1;
@@ -241,7 +312,11 @@ export class Porudzbenica {
     this.kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3);
     this.kalkulacijaRabata(porudzbenicastavka, rabat1, rabat2, rabat3);
   }
-
+  onPorucenoChange(obj,e){
+    let porudzbenicastavka = obj.stavka;
+    let kolicina = e.sender.value();
+    porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * kolicina;
+  }
   kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3){
     try {
       let cena = porudzbenicastavka.cena;
@@ -264,7 +339,7 @@ export class Porudzbenica {
       if (cena3) {
         porudzbenicastavka.konacnaCena = cena3;
       }
-
+      porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * porudzbenicastavka.poruceno;
     } catch (error) {
       console.log(error);
     }
@@ -286,37 +361,101 @@ export class Porudzbenica {
       console.log(error);
     }
   }
-  // potvrdi(obj, e) {
-  //   obj.edit = false;
-  //   var index=this.grid.dataSource.data().map((x)=>{ return x.rbr; }).indexOf(obj.rbr);
-  //   this.porudzbenica.stavke.splice(index,1);
-  //   this.porudzbenica.stavke.push(obj);
-  // }
-  // izmeni(obj, e) {
-  //   obj.edit = true;
-  //   this.grid.dataSource.read();
-  //   //this.grid.refresh(this.grid);
-  // }
+  potvrdi(obj, e) {
+    obj.stavka.edit = false;
+    $('[data-toggle="tooltip"]').tooltip('hide');
+  }
+  izmeni(obj, e) {
+    obj.stavka.edit = true;
+    $('[data-toggle="tooltip"]').tooltip('hide');
+  }
 
-  // obrisi(obj, e) {
-  //   var index=this.porudzbenica.stavke.map((x)=>{ return x.rbr; }).indexOf(obj.rbr);
-  //   if(index !== -1 && obj.id===0){
-  //     this.porudzbenica.stavke.splice(index,1);
-  //     this.porudzbenica.stavke.forEach((element, index)=>element.rbr=index+1);
-  //     this.grid.dataSource.read();
-  //   }
-  //   this.grid.dataSource.read();
-  // }
-  // snimi(obj, e) {
-  //   if (confirm("Da li želite da snimite izmene?")) {
-  //     this.repo.post('Porudzbenica', this.porudzbenica)
-  //       .then(res => {
-  //         toastr.success("Uspešno snimljeno");
-  //         this.grid.dataSource.read();
-  //       })
-  //       .error(err => toastr.error(err.statusText));
-  //   }
-  // }
+  obrisi(obj, e) {
+    let id  = null;
+    if(obj.stavka.ident){
+      if(obj.stavka.ident.id)
+        id = obj.stavka.ident.id;
+    }
+      
+    if((!id) && (this.porudzbenica.stavke.length === obj.stavka.rbr)) return;
+      
+    var index=this.porudzbenica.stavke.map((x)=>{ return x.rbr; }).indexOf(obj.stavka.rbr);
+    if (confirm(`Da li želite da obrišete stavku ${index + 1}?`)) {
+      if(index !== -1 && obj.stavka.id===0){
+        this.porudzbenica.stavke.splice(index,1);
+        this.porudzbenica.stavke.forEach((element, index)=>element.rbr=index+1); 
+      }
+    }
+    $('[data-toggle="tooltip"]').tooltip('hide');
+  }
+
+
+  snimi(obj, e) {
+    if(this.porudzbenica.stavke.length===1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !==null && !this.porudzbenica.stavke[0].ident.id))){
+      toastr.error("Porudžbenica nema stavke");
+      return;
+    }
+    if(!this.porudzbenica.kupac){
+      toastr.error("Kupac nije odabran");
+      return;
+    }
+    if(!this.porudzbenica.kupac.id){
+      toastr.error("Kupac nije odabran");
+      return;
+    }
+    if(!this.porudzbenica.mestoIsporuke){
+      toastr.error("Mesto isporuke nije odabrano");
+      return;
+    }
+    if(!this.porudzbenica.mestoIsporuke.id){
+      toastr.error("Mesto isporuke nije odabrano");
+      return;
+    }
+    if(this.porudzbenica.odeljenje){
+      if(!this.porudzbenica.odeljenje){
+        this.porudzbenica.odeljenje = null;
+      }
+    }
+
+    let ok = true;
+    this.porudzbenica.stavke.forEach((element, index)=>{
+      if(((!element.ident && (element.ident && !element.ident.id)) && index + 1 !== this.porudzbenica.stavke.length) || element.poruceno ===0 ){
+        ok = false
+      }
+      if(element.odeljenje){
+        if(!element.odeljenje.id){
+          element.odeljenje = null;
+        }
+      }
+    });
+    if(!ok){
+      toastr.error("Stavke porudžbenice nisu ispravne");
+      return;
+    }
+    
+
+
+
+    //brisem poslednju stavku
+    if(this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident){
+      if(!this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident.id){
+        this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length-1, 1);
+      }
+    }else{
+      this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length-1, 1);
+    }
+
+
+
+    if (confirm("Da li želite da snimite izmene?")) {
+      this.repo.post('Porudzbenica', this.porudzbenica)
+        .then(res => {
+          toastr.success("Uspešno snimljeno");
+          this.porudzbenica = res;
+        })
+        .error(err => toastr.error(err.statusText));
+    }
+  }
   // proba(){
   //   console.log(1);
   // }

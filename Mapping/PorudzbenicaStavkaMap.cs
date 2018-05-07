@@ -37,6 +37,7 @@ namespace webkom.Mapping
             Map(x => x.KonacnaCena).CustomSqlType("decimal(12,2)");
             References(x => x.Porudzbenica).Column("PorudzbenicaId").Cascade.None().Not.Update();
             References(x => x.Ident).Column("IdentId").Cascade.None().Not.Update();
+            References(x => x.Odeljenje).Column("OdeljenjeId").Cascade.None().Not.Update();
         }
     }
 }

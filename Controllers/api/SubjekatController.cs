@@ -178,6 +178,25 @@ namespace webkom.Controllers.api
             }
         }
        
+        [HttpGet]
+        [Route("[Action]")]
+        public ActionResult ListaOdeljenjaComboSp(string filter) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
+        {
+            try
+            {
+                var upit = _session.CreateSQLQuery("exec filOdeljenje :filter");
+                upit.SetParameter("filter", filter, NHibernateUtil.String);
+                upit.AddEntity(typeof(Subjekt));
+                var res = upit.List<Subjekt>();
+                return Ok(res);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.InnerException.Message);
+                return BadRequest();
+            }
+        }
 
         [HttpPost]
         [Route("[Action]")]

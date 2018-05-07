@@ -33,7 +33,7 @@ namespace webkom
         .MinimumLevel.Debug()
         .Destructure
           .ByTransforming<SqlParameter>(r=>new { ParameterName = r.ParameterName, Value = r.Value})
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
         .Enrich.FromLogContext()
         .WriteTo.MSSqlServer(Configuration.GetConnectionString("DefaultConnection"), "Logs")
         .WriteTo.RollingFile("logs\\log-{Date}.txt")
@@ -54,7 +54,8 @@ namespace webkom
             //var init = new Seed(services.GetRequiredService<UserManager<ApplicationUser>>(), services.GetRequiredService<RoleManager<IdentityRole>>(), services.GetRequiredService<ISession>());
             var init = new Seed(services.GetRequiredService<KorisnikManager>(),  services.GetRequiredService<ISession>(), 
                                 services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
-            init.SeedDatabase();
+            
+            //init.SeedDatabase();
             // init.SeedUsers();
             // init.SeedData("exec seed_meni");
             // init.SeedData("exec seed_ident");

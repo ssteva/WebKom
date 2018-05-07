@@ -1,10 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using System;
+using System.Linq;
+using webkom.Helper;
+using webkom.Helper.Kendo;
 using webkom.Models;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using ISession = NHibernate.ISession;
-
+using Newtonsoft.Json;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace webkom.Controllers.api
@@ -52,7 +58,7 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
-              
+
         [HttpGet]
         [Route("[Action]")]
         public ActionResult PorudzbenicaStavka(int id, string vrsta)
@@ -81,18 +87,154 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
-        [HttpGet]
+        [HttpPost]
         [Route("[Action]")]
-        public ActionResult New()
+        public KendoResult<Porudzbenica> PregledGrid([FromBody]KendoRequest kr)
         {
-
-            var porudzbenica = new Porudzbenica();
-            var props = porudzbenica.GetType().GetProperties();
-            foreach (var item in props)
+            Porudzbenica dok = null;
+            Subjekt Kupac = null;
+            Subjekt MestoIsporuke = null;
+            var upit = _session.QueryOver<Porudzbenica>(() => dok)
+              .JoinAlias(x => x.Kupac, () => Kupac, JoinType.InnerJoin)
+              .JoinAlias(x => x.MestoIsporuke, () => MestoIsporuke, JoinType.InnerJoin)
+              .Where(x => !x.Obrisan);
+            var rows = _session.QueryOver<Porudzbenica>(() => dok)
+              .JoinAlias(x => x.Kupac, () => Kupac, JoinType.InnerJoin)
+              .JoinAlias(x => x.MestoIsporuke, () => MestoIsporuke, JoinType.InnerJoin)
+              .Where(x => !x.Obrisan);
+            if (kr.Filter != null && kr.Filter.Filters.Any())
             {
-                _logger.LogInformation($"Name: {item.Name}, tip: {item.GetType()}");
+                foreach (FilterDescription filter in kr.Filter.Filters)
+                {
+
+
+                    string prop = filter.Field.UpperCaseFirst();
+                    if (prop.Contains("Kupac"))
+                    {
+                        upit.AndRestrictionOn(() => Kupac.Naziv).IsInsensitiveLike(filter.Value, MatchMode.Anywhere);
+                        rows.AndRestrictionOn(() => Kupac.Naziv).IsInsensitiveLike(filter.Value, MatchMode.Anywhere);
+                    }
+                    else if (prop.Contains("MestoIsporuke"))
+                    {
+                        upit.AndRestrictionOn(() => MestoIsporuke.Naziv).IsInsensitiveLike(filter.Value, MatchMode.Anywhere);
+                        rows.AndRestrictionOn(() => MestoIsporuke.Naziv).IsInsensitiveLike(filter.Value, MatchMode.Anywhere);
+                    }
+                    else if (prop.Contains("Datum"))
+                    {
+                        var d = Convert.ToDateTime(filter.Value);
+                        filter.Value = d.ToLocalTime().ToString("yyyyMMdd");
+                        if (filter.Operator == "gte")
+                        {
+                            upit.And(x => x.Datum >= d);
+                            rows.And(x => x.Datum >= d);
+                        }
+                        if (filter.Operator == "lte")
+                        {
+                            d = d.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+                            upit.And(x => x.Datum <= d);
+                            rows.And(x => x.Datum <= d);
+                        }
+                    }
+                    else
+                    {
+                        upit.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                        rows.And(Restrictions.InsensitiveLike(prop, filter.Value, MatchMode.Anywhere));
+                    }
+
+                }
             }
-            return Ok(porudzbenica);
+            if (kr.Sort.Any())
+            {
+                foreach (Sort sort in kr.Sort)
+                {
+                    string prop = sort.Field.UpperCaseFirst();
+                    if (prop.Contains("Kupac"))
+                        prop = "Kupac.Naziv";
+                    if (prop.Contains("MestoIsporuke"))
+                        prop = "MestoIsporuke.Naziv";
+                    upit.UnderlyingCriteria.AddOrder(new Order(prop, sort.Dir.ToLower() == "asc"));
+                }
+            }
+            else
+            {
+                upit.UnderlyingCriteria.AddOrder(new Order("dok.Id", false));
+            }
+
+            upit.Future<Porudzbenica>();
+
+
+            rows.Select(Projections.Count(Projections.Id()));
+
+            var redova = rows.FutureValue<int>().Value;
+
+            var lista = upit.List<Porudzbenica>();
+            //_logger.LogInformation(JsonConvert.SerializeObject(lista,
+            //    new JsonSerializerSettings
+            //    {
+            //        ContractResolver = new NHibernateContractResolver(),
+            //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //        DateFormatHandling = DateFormatHandling.IsoDateFormat,
+            //        DateTimeZoneHandling = DateTimeZoneHandling.Local
+            //    }));
+            //opt.SerializerSettings.ContractResolver = new Helper.NHibernateContractResolver();
+            //opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //opt.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            //opt.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+            //opt.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Local;
+            var res = new KendoResult<Porudzbenica>
+            {
+                Data = lista,
+                Total = redova
+            };
+            return res;
+
         }
+
+        [HttpPost]
+        public ActionResult Post([FromBody]Porudzbenica porudzbenica)
+        {
+            var anid = Guid.NewGuid();
+            if(porudzbenica.Uid == null)
+              porudzbenica.Uid = anid;
+
+            if (porudzbenica.Id == 0)
+                porudzbenica.Broj = Helper.RedniBroj(_session, porudzbenica.Vrsta);
+
+            foreach (var stavka in porudzbenica.Stavke.Where(s => !s.Obrisan))
+            {
+                stavka.Porudzbenica = porudzbenica;
+                //_session.SaveOrUpdate(stavka);
+            }
+            using (var trans = _session.BeginTransaction())
+            {
+                try
+                {
+                    _session.SaveOrUpdate(porudzbenica);
+                    trans.Commit();
+                    return Ok(porudzbenica);
+                }
+                catch (System.Exception)
+                {
+                    return BadRequest(porudzbenica);
+                }
+
+
+            }
+
+        }
+
+        // foreach (var stavka in porudzbenica.Stavke.Where(s => !s.Obrisan))
+        // {
+        //     stavka.Porudzbenica = porudzbenica;
+        //     _session.SaveOrUpdate(stavka);
+        // }
+        // using (var trans = _session.BeginTransaction())
+        // {
+        //     _session.SaveOrUpdate(porudzbenica);
+        //     trans.Commit();
+        //     return Ok(porudzbenica);
+        // }
     }
 }
+
