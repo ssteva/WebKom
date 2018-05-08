@@ -14,14 +14,16 @@
     <ak-col k-title="Mesto isporuke" k-field="mestoIsporuke.naziv"></ak-col>
     <ak-col k-title="Datum" k-field="datum" k-format="{0:dd.MM.yyyy}"></ak-col>
     <ak-col k-title="Datum važenja" k-field="datumVazenja" k-format="{0:dd.MM.yyyy}"></ak-col>
-    <ak-col k-width="50px">
+    <ak-col k-title="Opcije" k-width="80px">
       <ak-template>
-        <!--<button class="uk-button-mini uk-button-primary uk-icon-edit" click.delegate="edit($this)">Izmena</button>-->
-        <!--<a href="javascript:void()" click.delegate="izmena($this)" class="uk-icon-justify uk-icon-edit"></a>-->
+        <button class="btn btn-primary btn-sm" 
+        data-toggle="tooltip" data-placement="top" title="Izmena" click.delegate="izmena($this, $event)">
+        <i class="fa fa-pencil"></i>
+      </button>
       </ak-template>
     </ak-col>
     <!--<div style="width: 60vw;"></div>-->
-    <!-- <ak-template for="detailTemplate">
+    <ak-template for="detailTemplate">
       <div class="tabstrip">
         <ul>
           <li class="k-state-active">
@@ -32,7 +34,7 @@
           <div class="stavke"></div>
         </div>
       </div>
-    </ak-template> -->
+    </ak-template>
   </ak-grid>
 </template>
 

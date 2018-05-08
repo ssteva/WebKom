@@ -136,6 +136,28 @@ export class Porudzbenica {
       serverSorting: true,
       serverFiltering: true,
     });
+    this.dsStatus = new kendo.data.DataSource({
+      pageSize: 10,
+      batch: false,
+      transport: {
+        read: (o) => {
+          let filter = "";
+          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+            filter = o.data.filter.filters[0].value;
+          }
+          this.repo.find('Status/?vrsta=PORK')
+            .then(result => {
+              o.success(result);
+            })
+            .catch(err => {
+              console.log(err.statusText);
+            });
+        }
+      },
+      serverPaging: true,
+      serverSorting: true,
+      serverFiltering: true,
+    });
   }
 
   activate(params, routeData) {
@@ -150,7 +172,8 @@ export class Porudzbenica {
       .then(res => {
         this.porudzbenica = res[0];
         this.porudzbenicastavkaprazna = res[1];
-        if(params.id==="0"){
+        if(params.id==="0" || this.porudzbenica.status.oznaka ==='UPR'){
+          this.porudzbenica.stavke.forEach((element)=>element.edit = true);
           this.novaStavka();
         }
         
@@ -317,6 +340,11 @@ export class Porudzbenica {
     let kolicina = e.sender.value();
     porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * kolicina;
   }
+  onSelectStatus(e){
+    let dataItem = this.cboStatus.dataItem(e.item);
+    if(dataItem)
+      this.porudzbenica.status = dataItem;
+  }
   kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3){
     try {
       let cena = porudzbenicastavka.cena;
@@ -452,6 +480,15 @@ export class Porudzbenica {
         .then(res => {
           toastr.success("Uspešno snimljeno");
           this.porudzbenica = res;
+          this.porudzbenica.stavke.forEach((element)=>{
+            if(this.porudzbenica.status.oznaka ==='UPR'){
+              element.edit = true;
+            }
+            else{
+              element.edit = false;
+            }
+          })
+          
         })
         .error(err => toastr.error(err.statusText));
     }

@@ -42,15 +42,15 @@ namespace webkom.Mapping
             //References(x => x.Platilac).Column("PlatilacId").Cascade.None().Not.Update();
             References(x => x.Skladiste).Column("SkladisteId").Cascade.None().Not.Update();
             References(x => x.Odeljenje).Column("OdeljenjeId").Cascade.None().Not.Update();
-             References(x => x.MestoIsporuke).Column("MestoIsporukeId").Cascade.None().Not.Update();
-             References(x => x.Region).Column("MestoId").Cascade.None().Not.Update();
-             References(x => x.Referent).Cascade.None().Not.Update();
-             References(x => x.Status).Cascade.None().Not.Update();
+            References(x => x.MestoIsporuke).Column("MestoIsporukeId").Cascade.None().Not.Update();
+            References(x => x.Region).Column("MestoId").Cascade.None();
+            References(x => x.Referent).Cascade.None().Not.Update();
+            References(x => x.Status).Cascade.None();
             HasMany(x => x.Stavke)
               .Inverse()
               .AsSet()
               .Cascade.All();
-          
+
         }
     }
 }
