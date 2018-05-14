@@ -30,6 +30,7 @@ namespace webkom.Models
         public virtual string Dokument2 {get;set;}
         public virtual string KontaktOsobaKupca {get;set;}
         public virtual string KontaktOsobaMestaIsporuke {get;set;}
+        public virtual string Napomena {get;set;}
         public virtual int StatusPanteon {get;set;}
         public virtual Guid? Uid {get;set;}
         public virtual DateTime? DatumDokument1 {get;set;}

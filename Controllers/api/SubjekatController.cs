@@ -177,7 +177,7 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
-       
+
         [HttpGet]
         [Route("[Action]")]
         public ActionResult ListaOdeljenjaComboSp(string filter) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
@@ -197,7 +197,25 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
-
+        [HttpGet]
+        [Route("[Action]")]
+        public ActionResult ListaSkladistaComboSp(string filter) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
+        {
+            try
+            {
+                var upit = _session.CreateSQLQuery("exec filSkladiste :filter");
+                upit.SetParameter("filter", filter, NHibernateUtil.String);
+                upit.AddEntity(typeof(Subjekt));
+                var res = upit.List<Subjekt>();
+                return Ok(res);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.InnerException.Message);
+                return BadRequest();
+            }
+        }
         [HttpPost]
         [Route("[Action]")]
         public ActionResult ListaMestaIsporukeCombo([FromBody] KendoRequest kr) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)

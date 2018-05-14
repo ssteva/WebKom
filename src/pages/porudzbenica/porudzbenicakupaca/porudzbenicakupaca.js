@@ -3,6 +3,7 @@ import {inject} from 'aurelia-framework';
 import {AuthService} from 'aurelia-authentication';
 import {DialogController, DialogService} from 'aurelia-dialog';
 import {DataCache} from 'helper/datacache';
+import {Router} from 'aurelia-router';
 import {Common} from 'helper/common';
 import {computedFrom, observable} from 'aurelia-framework';
 import 'kendo/js/kendo.combobox';
@@ -12,19 +13,20 @@ import * as toastr from 'toastr';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import 'jquery.dataTables';
 
-@inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator)
+@inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator, Router)
 export class Porudzbenica {
   
   porudzbenica = null;
   porudzbenicastavka = null;
   skladista = [];
   odeljenja = [];
-  constructor(authService, dc, common, dialogService, repo, eventAggregator) {
+  constructor(authService, dc, common, dialogService, repo, eventAggregator, router) {
     this.authService = authService;
     this.repo = repo;
     this.dialogService = dialogService;
     this.dc = dc;
     this.common = common;
+    this.router = router;
     this.roles = this.common.roles;
     this.eventAggregator = eventAggregator;
     let payload = this.authService.getTokenPayload();
@@ -136,6 +138,28 @@ export class Porudzbenica {
       serverSorting: true,
       serverFiltering: true,
     });
+    this.dsSkladiste = new kendo.data.DataSource({
+      pageSize: 10,
+      batch: false,
+      transport: {
+        read: (o) => {
+          let filter = "";
+          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+            filter = o.data.filter.filters[0].value;
+          }
+          this.repo.find('Subjekat/ListaSkladistaComboSp?filter='+ filter)
+            .then(result => {
+              o.success(result);
+            })
+            .catch(err => {
+              console.log(err.statusText);
+            });
+        }
+      },
+      serverPaging: true,
+      serverSorting: true,
+      serverFiltering: true,
+    });
     this.dsStatus = new kendo.data.DataSource({
       pageSize: 10,
       batch: false,
@@ -193,7 +217,7 @@ export class Porudzbenica {
     // });
     $('[data-toggle="tooltip"]').tooltip();
     //wire focus of all numerictextbox widgets on the page
-    $("input[type=numeber]").on("focus", function () {
+    $("input").on("focus", function () {
       var input = $(this);
           clearTimeout(input.data("selectTimeId")); //stop started time out if any
 
@@ -283,6 +307,11 @@ export class Porudzbenica {
       })
     }
   }
+  onSkladisteSelect (e){
+    let dataItem = this.cboOdeljenje.dataItem(e.item);
+    if(dataItem && dataItem.id){
+    }
+  }
   // get novaStavkaOk(){
   //   if(!this.grid) return false;
   //   let found = this.grid.dataSource.data().find((element)=>element.edit);
@@ -296,7 +325,7 @@ export class Porudzbenica {
       obj.stavka.poreskaStopa = dataItem.poreskaStopa;
       obj.stavka.poreskaOznaka = dataItem.poreskaOznaka;
       obj.stavka.ident.naziv = dataItem.naziv;
-      if(!obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
+      if(!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
       
       if (obj.stavka.rbr===this.porudzbenica.stavke.length) this.novaStavka();
       
@@ -375,15 +404,35 @@ export class Porudzbenica {
   kalkulacijaRabata(porudzbenicastavka,rabat1, rabat2, rabat3){
     try {
       let rabat = 0
+      let um1;
+      let um2;
+      let um3;
       if (rabat1) {
-        rabat = rabat + rabat1;
+        um1 = 1 - (rabat1 / 100);
       }
       if (rabat2) {
-        rabat = rabat + rabat2;
+        um2 = 1 - (rabat2 / 100);
       }
       if (rabat3) {
-        rabat = rabat + rabat3;
+        um3 = 1 - (rabat3 / 100);
       }
+      
+      if(um1 && um2 && um3)
+        rabat = (1 - ( um1  * um2 *  um3 )) * 100;
+      if(um1 && !um2 && !um3)
+        rabat = (1 - ( um1 )) * 100;
+      if(um1 && um2 && !um3)
+        rabat = (1 - ( um1 * um2 )) * 100;
+      if(!um1 && um2 && um3)
+        rabat = (1 - ( um2 * um3 )) * 100;
+      if(um1 && !um2 && um3)
+        rabat = (1 - ( um1 * um3 )) * 100;
+      if(!um1 && !um2 && um3)
+        rabat = (1 - ( um3 )) * 100;
+      if(!um1 && um2 && !um3)
+        rabat = (1 - ( um2 )) * 100;
+      
+      //@nRebate =  (1 - ((1 - (@nRebate1 / 100))  * (1 - (@nRebate2 / 100)) *  (1 - (@nRebate3 / 100)) )) * 100
       porudzbenicastavka.rabat = rabat;
     } catch (error) {
       console.log(error);
@@ -461,8 +510,12 @@ export class Porudzbenica {
       return;
     }
     
-
-
+    if(this.porudzbenica.odeljenje && !this.porudzbenica.odeljenje.id){
+      this.porudzbenica.odeljenje = null;
+    }
+    if(this.porudzbenica.skladiste && !this.porudzbenica.skladiste.id){
+      this.porudzbenica.skladiste = null;
+    }
 
     //brisem poslednju stavku
     if(this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident){
@@ -479,15 +532,7 @@ export class Porudzbenica {
       this.repo.post('Porudzbenica', this.porudzbenica)
         .then(res => {
           toastr.success("Uspešno snimljeno");
-          this.porudzbenica = res;
-          this.porudzbenica.stavke.forEach((element)=>{
-            if(this.porudzbenica.status.oznaka ==='UPR'){
-              element.edit = true;
-            }
-            else{
-              element.edit = false;
-            }
-          })
+          this.router.navigateToRoute("porudzbenicakupaca", { id: res.id });
           
         })
         .error(err => toastr.error(err.statusText));
@@ -496,4 +541,27 @@ export class Porudzbenica {
   // proba(){
   //   console.log(1);
   // }
+}
+
+export class DatumValueConverter {
+  toView(value) {
+      if (!value) return "";
+      moment.locale('sr');
+      //return moment(value).format('LLLL');
+      return moment(value).format('DD.MM.YYYY');
+  }
+}
+export class DatumVremeValueConverter {
+  toView(value) {
+      if (!value) return "";
+      moment.locale('sr');
+      //return moment(value).format('LLLL');
+      return moment(value).format('DD.MM.YYYY HH:mm:ss');
+  }
+}
+export class DinaraValueConverter {
+  toView(value) {
+      if (!value) return "";
+      return value.formatMoney(2, '.', ',');
+  }
 }

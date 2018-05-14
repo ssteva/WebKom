@@ -35,6 +35,7 @@ namespace webkom.Mapping
             Map(x => x.DatumDokument2).CustomSqlType("date");
             Map(x => x.StatusPanteon);
             Map(x => x.Uid);
+            Map(x => x.Napomena).CustomSqlType("nvarchar(1000)");
             References(x => x.Valuta).Cascade.None().Not.Update().LazyLoad();
             References(x => x.NacinDostave).Cascade.None().Not.Update();
             References(x => x.NacinPlacanja).Cascade.None().Not.Update();
@@ -50,7 +51,6 @@ namespace webkom.Mapping
               .Inverse()
               .AsSet()
               .Cascade.All();
-
         }
     }
 }

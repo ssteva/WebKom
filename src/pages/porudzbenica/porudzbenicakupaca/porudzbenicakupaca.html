@@ -70,6 +70,17 @@
         <!-- <small id="emailHelp" class="form-text text-muted">Izabrati kupca</small> -->
       </div>
       <div class="form-group">
+        <label for="skladiste">Skladište</label>
+        <ak-combobox k-data-source.bind="dsSkladiste" k-auto-bind.bind="true" k-data-text-field="sifra" k-data-value-field="id" k-widget.bind="cboSkladiste"
+          k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.skladiste.id" k-on-select.delegate="onSkladisteSelect($event.detail)"
+          style="width: 100%">
+          <ak-template>
+            <span>${naziv}</span>
+          </ak-template>
+        </ak-combobox>
+        <!-- <small id="emailHelp" class="form-text text-muted">Izabrati kupca</small> -->
+      </div>
+      <div class="form-group">
         <label for="status">Status</label>
         <ak-drop-down-list k-data-source.bind="dsStatus" k-data-text-field="naziv" k-widget.bind="cboStatus" k-auto-bind.bind="true"
           k-data-value-field="id" k-value.two-way="porudzbenica.status.id" k-on-select.delegate="onSelectStatus($event.detail)"
@@ -135,8 +146,15 @@
                 </div>
               </td>
               <td>
-                <input if.bind="stavka.ident.id" value.bind="stavka.cena" class="form-control form-control-sm" type="text" type="number"
-                  disabled style="max-width:40px;">
+                <!-- <input if.bind="stavka.ident.id" value.bind="stavka.cena" class="form-control form-control-sm" type="text" type="number"
+                  disabled style="max-width:40px;"> -->
+                  <div show.bind="stavka.edit && stavka.ident.id">
+                    <input id.bind="'numCena' + stavka.rbr" class="form-control form-control-sm" style="max-width:60px;" type="number" ak-numerictextbox="k-widget.bind: txtCena;k-value.two-way: stavka.cena;k-format.bind:'n0'; k-min.bind:1;k-max.bind:10000;k-step.bind:1"
+                      k-on-change.delegate="onRabatChange($this, $event.detail)" k-on-spin.delegate="onRabatChange($this, $event.detail)">
+                  </div>
+                  <div if.bind="!stavka.edit">
+                    ${stavka.poruceno}
+                  </div>
               </td>
               <td>
                 <span if.bind="stavka.ident.id">${stavka.jm}</span>
@@ -154,7 +172,7 @@
                 </div>
               </td>
               <td>
-                <div if.bind="stavka.edit && stavka.ident.id && stavka.rabat1">
+                <div if.bind="stavka.edit && stavka.ident.id">
                   <input id="numRabat2" class="form-control form-control-sm" type="text" style="max-width:60px;" type="number" ak-numerictextbox="k-value.two-way: stavka.rabat2;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1"
                     k-on-change.delegate="onRabatChange($this, $event.detail)" k-on-spin.delegate="onRabatChange($this, $event.detail)">
                 </div>
@@ -163,7 +181,7 @@
                 </div>
               </td>
               <td>
-                <div if.bind="stavka.edit && stavka.ident.id && stavka.rabat3">
+                <div if.bind="stavka.edit && stavka.ident.id">
                   <input id="numRabat3" class="form-control form-control-sm" type="text" placeholder="rabat 2" style="max-width:60px;" type="number"
                     ak-numerictextbox="k-value.two-way: stavka.rabat3;k-format.bind:'n0'; k-min.bind:0;k-max.bind:99;k-step.bind:1"
                     k-on-change.delegate="onRabatChange($this, $event.detail)" k-on-spin.delegate="onRabatChange($this, $event.detail)">
@@ -173,10 +191,10 @@
                 </div>
               </td>
               <td>
-                <span if.bind="stavka.ident.id">${stavka.rabat}</span>
+                <span if.bind="stavka.ident.id">${stavka.rabat | dinara}</span>
               </td>
               <td>
-                <input if.bind="stavka.ident.id" value.bind="stavka.konacnaCena" class="form-control form-control-sm" type="text" placeholder="cena"
+                <input if.bind="stavka.ident.id" value.bind="stavka.konacnaCena | dinara" class="form-control form-control-sm" type="text" placeholder="cena"
                   type="number" disabled style="max-width:70px;">
               </td>
               <td>
@@ -187,7 +205,7 @@
                 <span if.bind="stavka.ident.id">${stavka.poreskaOznaka}</span>
               </td>
               <td>
-                <span if.bind="stavka.ident.id">${stavka.vrednost}</span>
+                <span if.bind="stavka.ident.id">${stavka.vrednost | dinara}</span>
               </td>
               <td>
                 <div if.bind="stavka.edit">

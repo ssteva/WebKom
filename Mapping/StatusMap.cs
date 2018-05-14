@@ -20,6 +20,7 @@ namespace webkom.Mapping
     {
       Table("tStatus");
       Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
+      Map(x=>x.Rbr);
       Map(x=>x.Oznaka).CustomSqlType("varchar(5)");
       Map(x=>x.Vrsta).CustomSqlType("varchar(20)");
       Map(x=>x.Naziv);
