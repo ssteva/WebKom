@@ -209,11 +209,12 @@ export class Porudzbenica {
   }
   afterAttached(){
     //this.setGridDataSource(this.grid);
-    // $(this.tblstavke).DataTable({
+    // this.table =  $(this.tblstavke).DataTable({
     //   paging: false,
     //   scrollY: 400,
     //   info: false,
-    //   searching: false
+    //   searching: false,
+    //   data: this.porudzbenica.stavke
     // });
     $('[data-toggle="tooltip"]').tooltip();
     //wire focus of all numerictextbox widgets on the page
@@ -253,6 +254,17 @@ export class Porudzbenica {
     this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1,this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
     this.porudzbenica.stavke.push(this.porudzbenicastavka);
     $('[data-toggle="tooltip"]').tooltip();
+
+    // this.table.clear().draw();
+    // this.table.rows.add(NewlyCreatedData); // Add new data
+    // this.table.columns.adjust().draw(); // Redraw the DataTable
+    // this.table.destroy();
+    // this.table = $(this.tblstavke).DataTable({
+    //   paging: false,
+    //   scrollY: 400,
+    //   info: false,
+    //   searching: false
+    // });
   }
   srediStavke(){
 

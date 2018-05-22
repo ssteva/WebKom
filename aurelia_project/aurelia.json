@@ -237,6 +237,14 @@
             "path": "../node_modules/datatables.net/js",
             "resources": [
             ]
+          },
+          {
+            "name": "jquery.dataTables-dt",
+            "main": "jquery.dataTables-dt",
+            "path": "../node_modules/datatables.net-dt/css",
+            "resources": [
+              "jquery.dataTables.css"
+            ]
           }
 
         ]
