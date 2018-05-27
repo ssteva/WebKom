@@ -11,6 +11,7 @@ using webkom.Models;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using ISession = NHibernate.ISession;
 using Newtonsoft.Json;
+using System.Web;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace webkom.Controllers.api
@@ -87,6 +88,18 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
+
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult Storno([FromQuery]string vrsta, int id)
+        {
+            var upit = _session.CreateSQLQuery("exec Storno :vrsta, :id");
+            upit.SetParameter("vrsta", vrsta);
+            upit.SetParameter("id", id);
+            var res = upit.ExecuteUpdate();
+            return Ok(res);
+        }
+
         [HttpPost]
         [Route("[Action]")]
         public KendoResult<Porudzbenica> PregledGrid([FromBody]KendoRequest kr)
@@ -195,8 +208,8 @@ namespace webkom.Controllers.api
         public ActionResult Post([FromBody]Porudzbenica porudzbenica)
         {
             var anid = Guid.NewGuid();
-            if(porudzbenica.Uid == null)
-              porudzbenica.Uid = anid;
+            if (porudzbenica.Uid == null)
+                porudzbenica.Uid = anid;
 
             if (porudzbenica.Id == 0)
                 porudzbenica.Broj = Helper.RedniBroj(_session, porudzbenica.Vrsta);

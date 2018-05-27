@@ -110,8 +110,8 @@ namespace webkom
                   .ExposeConfiguration(cfg => cfg.SetProperty(NHibernate.Cfg.Environment.CurrentSessionContextClass, "web"))
                   .BuildConfiguration();
                 //export
-                var exporter = new SchemaExport(config);
-                exporter.Execute(true, true, false);
+                // var exporter = new SchemaExport(config);
+                // exporter.Execute(true, true, false);
                 //update
                 //var update = new SchemaUpdate(config);
                 //update.Execute(true, true);

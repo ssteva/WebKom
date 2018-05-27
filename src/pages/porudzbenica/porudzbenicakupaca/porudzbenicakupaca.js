@@ -1,21 +1,41 @@
-import {Endpoint} from 'aurelia-api';
-import {inject} from 'aurelia-framework';
-import {AuthService} from 'aurelia-authentication';
-import {DialogController, DialogService} from 'aurelia-dialog';
-import {DataCache} from 'helper/datacache';
-import {Router} from 'aurelia-router';
-import {Common} from 'helper/common';
-import {computedFrom, observable} from 'aurelia-framework';
+import {
+  Endpoint
+} from 'aurelia-api';
+import {
+  inject
+} from 'aurelia-framework';
+import {
+  AuthService
+} from 'aurelia-authentication';
+import {
+  DialogController,
+  DialogService
+} from 'aurelia-dialog';
+import {
+  DataCache
+} from 'helper/datacache';
+import {
+  Router
+} from 'aurelia-router';
+import {
+  Common
+} from 'helper/common';
+import {
+  computedFrom,
+  observable
+} from 'aurelia-framework';
 import 'kendo/js/kendo.combobox';
 import 'kendo/js/kendo.datepicker';
 import 'kendo/js/kendo.grid';
 import * as toastr from 'toastr';
-import {EventAggregator} from 'aurelia-event-aggregator';
+import {
+  EventAggregator
+} from 'aurelia-event-aggregator';
 import 'jquery.dataTables';
 
 @inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator, Router)
 export class Porudzbenica {
-  
+
   porudzbenica = null;
   porudzbenicastavka = null;
   skladista = [];
@@ -40,7 +60,7 @@ export class Porudzbenica {
       transport: {
         read: (o) => {
           let filter = "";
-          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
             filter = o.data.filter.filters[0].value;
           }
           var id = this.porudzbenica.kupac ? this.porudzbenica.kupac.id : null;
@@ -64,10 +84,10 @@ export class Porudzbenica {
       transport: {
         read: (o) => {
           let filter = "";
-          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
             filter = o.data.filter.filters[0].value;
           }
-          this.repo.find('Subjekat/ListaKupacaComboSp?filter='+ filter)
+          this.repo.find('Subjekat/ListaKupacaComboSp?filter=' + filter)
             .then(result => {
               o.success(result);
             })
@@ -100,10 +120,10 @@ export class Porudzbenica {
       transport: {
         read: (o) => {
           let filter = "";
-          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
             filter = o.data.filter.filters[0].value;
           }
-          this.repo.find('Ident/ListaCombo?filter='+filter)
+          this.repo.find('Ident/ListaCombo?filter=' + filter)
             .then(result => {
               o.success(result);
             })
@@ -122,10 +142,10 @@ export class Porudzbenica {
       transport: {
         read: (o) => {
           let filter = "";
-          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
             filter = o.data.filter.filters[0].value;
           }
-          this.repo.find('Subjekat/ListaOdeljenjaComboSp?filter='+ filter)
+          this.repo.find('Subjekat/ListaOdeljenjaComboSp?filter=' + filter)
             .then(result => {
               o.success(result);
             })
@@ -144,10 +164,10 @@ export class Porudzbenica {
       transport: {
         read: (o) => {
           let filter = "";
-          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
             filter = o.data.filter.filters[0].value;
           }
-          this.repo.find('Subjekat/ListaSkladistaComboSp?filter='+ filter)
+          this.repo.find('Subjekat/ListaSkladistaComboSp?filter=' + filter)
             .then(result => {
               o.success(result);
             })
@@ -166,7 +186,7 @@ export class Porudzbenica {
       transport: {
         read: (o) => {
           let filter = "";
-          if(o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0){
+          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
             filter = o.data.filter.filters[0].value;
           }
           this.repo.find('Status/?vrsta=PORK')
@@ -196,18 +216,18 @@ export class Porudzbenica {
       .then(res => {
         this.porudzbenica = res[0];
         this.porudzbenicastavkaprazna = res[1];
-        if(params.id==="0" || this.porudzbenica.status.oznaka ==='UPR'){
-          this.porudzbenica.stavke.forEach((element)=>element.edit = true);
+        if (params.id === "0" || this.porudzbenica.status.oznaka === 'UPR') {
+          this.porudzbenica.stavke.forEach((element) => element.edit = true);
           this.novaStavka();
         }
-        
+
         this.skladista = res[2];
         this.odeljenja = res[3];
 
       })
       .catch(err => toastr.error(err.statusText));
   }
-  afterAttached(){
+  afterAttached() {
     //this.setGridDataSource(this.grid);
     // this.table =  $(this.tblstavke).DataTable({
     //   paging: false,
@@ -220,21 +240,21 @@ export class Porudzbenica {
     //wire focus of all numerictextbox widgets on the page
     $("input").on("focus", function () {
       var input = $(this);
-          clearTimeout(input.data("selectTimeId")); //stop started time out if any
+      clearTimeout(input.data("selectTimeId")); //stop started time out if any
 
-          var selectTimeId = setTimeout(function()  {
-              input.select();
-              // To make this work on iOS, too, replace the above line with the following one. Discussed in https://stackoverflow.com/q/3272089
-              // input[0].setSelectionRange(0, 9999);
-          });
-
-          input.data("selectTimeId", selectTimeId);
-      }).blur(function(e) {
-          clearTimeout($(this).data("selectTimeId")); //stop started timeout
+      var selectTimeId = setTimeout(function () {
+        input.select();
+        // To make this work on iOS, too, replace the above line with the following one. Discussed in https://stackoverflow.com/q/3272089
+        // input[0].setSelectionRange(0, 9999);
       });
+
+      input.data("selectTimeId", selectTimeId);
+    }).blur(function (e) {
+      clearTimeout($(this).data("selectTimeId")); //stop started timeout
+    });
     this.subscription = this.eventAggregator.subscribe('loader', payload => {
       this.loading = payload;
-  });
+    });
   }
   // setGridDataSource(g){
   //   if(this.porudzbenica){
@@ -245,13 +265,13 @@ export class Porudzbenica {
   //     g.setDataSource(this.dsGrid);
   //   }
   // }
-  novaStavka(){
-    this.porudzbenicastavka =  JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
+  novaStavka() {
+    this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
     this.porudzbenicastavka.edit = true;
     this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
-    if(this.porudzbenica.odeljenje)
+    if (this.porudzbenica.odeljenje)
       this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
-    this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1,this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
+    this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1, this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
     this.porudzbenica.stavke.push(this.porudzbenicastavka);
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -266,52 +286,52 @@ export class Porudzbenica {
     //   searching: false
     // });
   }
-  srediStavke(){
+  srediStavke() {
 
   }
-  onMestoIsporukeSelect (e){
+  onMestoIsporukeSelect(e) {
     let dataItem = this.cboMestoIsporuke.dataItem(e.item);
-    if(dataItem){
+    if (dataItem) {
       this.porudzbenica.mestoIsporuke = dataItem;
     }
-    if(!this.porudzbenica.kupac || !this.porudzbenica.kupac.id){
-      if(dataItem && dataItem.platilac){
+    if (!this.porudzbenica.kupac || !this.porudzbenica.kupac.id) {
+      if (dataItem && dataItem.platilac) {
         this.porudzbenica.kupac = dataItem.platilac;
       }
     }
   }
 
-  onMestoIsporukeOpen (e, dis){
+  onMestoIsporukeOpen(e, dis) {
     this.cboMestoIsporuke.dataSource.read()
     //this.cboMestoIsporuke.refresh();
   }
-  onKupacSelect (e){
+  onKupacSelect(e) {
     let dataItem = this.cboKupac.dataItem(e.item);
-    if(dataItem && dataItem.id){
+    if (dataItem && dataItem.id) {
       this.porudzbenica.danaZaPlacanje = dataItem.danaZaPlacanje;
-    }else{
+    } else {
       this.porudzbenica.kupac = null;
     }
   }
-  onKupacOpen (e, dis){
+  onKupacOpen(e, dis) {
     this.cboKupac.dataSource.read()
     //this.cboKupac.refresh();
   }
-  onKupacChange (e, dis){
+  onKupacChange(e, dis) {
     //let dataItem = this.cboKupac.dataItem(e.item);
-    if(e.sender.value()===""){
+    if (e.sender.value() === "") {
       this.porudzbenica.kupac = null;
     }
-    
+
     //this.cboKupac.refresh();
   }
-  onOdeljenjeSelect (e){
+  onOdeljenjeSelect(e) {
     let dataItem = this.cboOdeljenje.dataItem(e.item);
-    if(dataItem && dataItem.id){
-      this.porudzbenica.stavke.forEach((stavka)=>{
-        if(stavka.ident){
-          if(stavka.ident.id){
-            if(!stavka.odeljenje.id){
+    if (dataItem && dataItem.id) {
+      this.porudzbenica.stavke.forEach((stavka) => {
+        if (stavka.ident) {
+          if (stavka.ident.id) {
+            if (!stavka.odeljenje.id) {
               stavka.odeljenje = dataItem;
             }
           }
@@ -319,74 +339,79 @@ export class Porudzbenica {
       })
     }
   }
-  onSkladisteSelect (e){
+  onSkladisteSelect(e) {
     let dataItem = this.cboOdeljenje.dataItem(e.item);
-    if(dataItem && dataItem.id){
-    }
+    if (dataItem && dataItem.id) {}
   }
   // get novaStavkaOk(){
   //   if(!this.grid) return false;
   //   let found = this.grid.dataSource.data().find((element)=>element.edit);
   //   return found;
   // }
-  onIdentSelect(e, obj){
+  onIdentSelect(e, obj) {
     let dataItem = e.sender.dataItem(e.item);
-    if(dataItem){
+    if (dataItem) {
       obj.stavka.jm = dataItem.jm;
       obj.stavka.koleta = dataItem.koleta;
       obj.stavka.poreskaStopa = dataItem.poreskaStopa;
       obj.stavka.poreskaOznaka = dataItem.poreskaOznaka;
       obj.stavka.ident.naziv = dataItem.naziv;
-      if(!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
-      
-      if (obj.stavka.rbr===this.porudzbenica.stavke.length) this.novaStavka();
-      
+      if (!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
+
+      if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka();
+
       this.repo.find("Ident/GetPrice?id=" + dataItem.id)
-        .then(res=>{
+        .then(res => {
           obj.stavka.cena = res;
           obj.stavka.konacnaCena = res;
           obj.stavka.vrednost = obj.stavka.konacnaCena * obj.stavka.poruceno;
           //if(this.txtPoruceno) this.txtPoruceno.focus();
-          let widget =  kendo.widgetInstance($("#numPoruceno" + obj.stavka.rbr), kendo.ui);
-          if(widget) widget.focus();
+          let widget = kendo.widgetInstance($("#numPoruceno" + obj.stavka.rbr), kendo.ui);
+          if (widget) widget.focus();
         })
         .error(err => toastr.error(err.statusText));
     }
   }
-  onIdentOpen (e, dis){
+  onIdentOpen(e, dis) {
     e.sender.dataSource.read()
     this.cboKupac.refresh();
   }
-  onIdentChange(e, dis){
+  onIdentChange(e, dis) {
     let dataItem = e.sender.dataItem(e.item);
-    if(!dataItem){
+    if (!dataItem) {
 
     }
   }
-  onRabatChange(obj, e){
+  onRabatChange(obj, e) {
     let porudzbenicastavka = obj.stavka;
     let rabat1 = porudzbenicastavka.rabat1;
     let rabat2 = porudzbenicastavka.rabat2;
     let rabat3 = porudzbenicastavka.rabat3;
-    switch(e.sender.element[0].id){
-      case "numRabat1": rabat1 = e.sender.value(); break;
-      case "numRabat2": rabat2 = e.sender.value(); break;
-      case "numRabat3": rabat3 = e.sender.value(); break;
+    switch (e.sender.element[0].id) {
+      case "numRabat1":
+        rabat1 = e.sender.value();
+        break;
+      case "numRabat2":
+        rabat2 = e.sender.value();
+        break;
+      case "numRabat3":
+        rabat3 = e.sender.value();
+        break;
     }
     this.kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3);
     this.kalkulacijaRabata(porudzbenicastavka, rabat1, rabat2, rabat3);
   }
-  onPorucenoChange(obj,e){
+  onPorucenoChange(obj, e) {
     let porudzbenicastavka = obj.stavka;
     let kolicina = e.sender.value();
     porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * kolicina;
   }
-  onSelectStatus(e){
+  onSelectStatus(e) {
     let dataItem = this.cboStatus.dataItem(e.item);
-    if(dataItem)
+    if (dataItem)
       this.porudzbenica.status = dataItem;
   }
-  kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3){
+  kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3) {
     try {
       let cena = porudzbenicastavka.cena;
       if (!rabat1) {
@@ -413,7 +438,7 @@ export class Porudzbenica {
       console.log(error);
     }
   }
-  kalkulacijaRabata(porudzbenicastavka,rabat1, rabat2, rabat3){
+  kalkulacijaRabata(porudzbenicastavka, rabat1, rabat2, rabat3) {
     try {
       let rabat = 0
       let um1;
@@ -428,22 +453,22 @@ export class Porudzbenica {
       if (rabat3) {
         um3 = 1 - (rabat3 / 100);
       }
-      
-      if(um1 && um2 && um3)
-        rabat = (1 - ( um1  * um2 *  um3 )) * 100;
-      if(um1 && !um2 && !um3)
-        rabat = (1 - ( um1 )) * 100;
-      if(um1 && um2 && !um3)
-        rabat = (1 - ( um1 * um2 )) * 100;
-      if(!um1 && um2 && um3)
-        rabat = (1 - ( um2 * um3 )) * 100;
-      if(um1 && !um2 && um3)
-        rabat = (1 - ( um1 * um3 )) * 100;
-      if(!um1 && !um2 && um3)
-        rabat = (1 - ( um3 )) * 100;
-      if(!um1 && um2 && !um3)
-        rabat = (1 - ( um2 )) * 100;
-      
+
+      if (um1 && um2 && um3)
+        rabat = (1 - (um1 * um2 * um3)) * 100;
+      if (um1 && !um2 && !um3)
+        rabat = (1 - (um1)) * 100;
+      if (um1 && um2 && !um3)
+        rabat = (1 - (um1 * um2)) * 100;
+      if (!um1 && um2 && um3)
+        rabat = (1 - (um2 * um3)) * 100;
+      if (um1 && !um2 && um3)
+        rabat = (1 - (um1 * um3)) * 100;
+      if (!um1 && !um2 && um3)
+        rabat = (1 - (um3)) * 100;
+      if (!um1 && um2 && !um3)
+        rabat = (1 - (um2)) * 100;
+
       //@nRebate =  (1 - ((1 - (@nRebate1 / 100))  * (1 - (@nRebate2 / 100)) *  (1 - (@nRebate3 / 100)) )) * 100
       porudzbenicastavka.rabat = rabat;
     } catch (error) {
@@ -460,82 +485,107 @@ export class Porudzbenica {
   }
 
   obrisi(obj, e) {
-    let id  = null;
-    if(obj.stavka.ident){
-      if(obj.stavka.ident.id)
+    let id = null;
+    if (obj.stavka.ident) {
+      if (obj.stavka.ident.id)
         id = obj.stavka.ident.id;
     }
-      
-    if((!id) && (this.porudzbenica.stavke.length === obj.stavka.rbr)) return;
-      
-    var index=this.porudzbenica.stavke.map((x)=>{ return x.rbr; }).indexOf(obj.stavka.rbr);
+
+    if ((!id) && (this.porudzbenica.stavke.length === obj.stavka.rbr)) return;
+
+    var index = this.porudzbenica.stavke.map((x) => {
+      return x.rbr;
+    }).indexOf(obj.stavka.rbr);
     if (confirm(`Da li želite da obrišete stavku ${index + 1}?`)) {
-      if(index !== -1 && obj.stavka.id===0){
-        this.porudzbenica.stavke.splice(index,1);
-        this.porudzbenica.stavke.forEach((element, index)=>element.rbr=index+1); 
+      if (index !== -1 && obj.stavka.id === 0) {
+        this.porudzbenica.stavke.splice(index, 1);
+        this.porudzbenica.stavke.forEach((element, index) => element.rbr = index + 1);
       }
     }
     $('[data-toggle="tooltip"]').tooltip('hide');
   }
 
+  storno() {
+    if (this.porudzbenica.skladiste) {
+      if (!this.porudzbenica.skladiste.id) {
+        this.porudzbenica.skladiste = null;
+      }
+    }
+    if (confirm("Da li želite da obrišete porudžbenicu?")) {
+      this.repo.post('Porudzbenica/Storno?vrsta=' + this.porudzbenica.vrsta + "&id=" + this.porudzbenica.id)
+      .then(res => {
+        if (res === 1) {
+          toastr.success("Uspešan storno");
+          this.router.navigateToRoute("porudzbenicekupaca");
+        }else{
+          toastr.error("Neuspešan storno");
+        }
+      })
+      .error(err => toastr.error(err.statusText));
+    }
+  }
 
   snimi(obj, e) {
-    if(this.porudzbenica.stavke.length===1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !==null && !this.porudzbenica.stavke[0].ident.id))){
+    if (this.porudzbenica.stavke.length === 1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !== null && !this.porudzbenica.stavke[0].ident.id))) {
       toastr.error("Porudžbenica nema stavke");
       return;
     }
-    if(!this.porudzbenica.kupac){
+    if (!this.porudzbenica.kupac) {
       toastr.error("Kupac nije odabran");
       return;
     }
-    if(!this.porudzbenica.kupac.id){
+    if (!this.porudzbenica.kupac.id) {
       toastr.error("Kupac nije odabran");
       return;
     }
-    if(!this.porudzbenica.mestoIsporuke){
+    if (!this.porudzbenica.mestoIsporuke) {
       toastr.error("Mesto isporuke nije odabrano");
       return;
     }
-    if(!this.porudzbenica.mestoIsporuke.id){
+    if (!this.porudzbenica.mestoIsporuke.id) {
       toastr.error("Mesto isporuke nije odabrano");
       return;
     }
-    if(this.porudzbenica.odeljenje){
-      if(!this.porudzbenica.odeljenje){
+    if (this.porudzbenica.odeljenje) {
+      if (!this.porudzbenica.odeljenje.id) {
         this.porudzbenica.odeljenje = null;
       }
     }
-
+    if (this.porudzbenica.skladiste) {
+      if (!this.porudzbenica.skladiste.id) {
+        this.porudzbenica.skladiste = null;
+      }
+    }
     let ok = true;
-    this.porudzbenica.stavke.forEach((element, index)=>{
-      if(((!element.ident && (element.ident && !element.ident.id)) && index + 1 !== this.porudzbenica.stavke.length) || element.poruceno ===0 ){
+    this.porudzbenica.stavke.forEach((element, index) => {
+      if (((!element.ident && (element.ident && !element.ident.id)) && index + 1 !== this.porudzbenica.stavke.length) || element.poruceno === 0) {
         ok = false
       }
-      if(element.odeljenje){
-        if(!element.odeljenje.id){
+      if (element.odeljenje) {
+        if (!element.odeljenje.id) {
           element.odeljenje = null;
         }
       }
     });
-    if(!ok){
+    if (!ok) {
       toastr.error("Stavke porudžbenice nisu ispravne");
       return;
     }
-    
-    if(this.porudzbenica.odeljenje && !this.porudzbenica.odeljenje.id){
+
+    if (this.porudzbenica.odeljenje && !this.porudzbenica.odeljenje.id) {
       this.porudzbenica.odeljenje = null;
     }
-    if(this.porudzbenica.skladiste && !this.porudzbenica.skladiste.id){
+    if (this.porudzbenica.skladiste && !this.porudzbenica.skladiste.id) {
       this.porudzbenica.skladiste = null;
     }
 
     //brisem poslednju stavku
-    if(this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident){
-      if(!this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident.id){
-        this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length-1, 1);
+    if (this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident) {
+      if (!this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident.id) {
+        this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
       }
-    }else{
-      this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length-1, 1);
+    } else {
+      this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
     }
 
 
@@ -544,8 +594,10 @@ export class Porudzbenica {
       this.repo.post('Porudzbenica', this.porudzbenica)
         .then(res => {
           toastr.success("Uspešno snimljeno");
-          this.router.navigateToRoute("porudzbenicakupaca", { id: res.id });
-          
+          this.router.navigateToRoute("porudzbenicakupaca", {
+            id: res.id
+          });
+
         })
         .error(err => toastr.error(err.statusText));
     }
@@ -557,23 +609,23 @@ export class Porudzbenica {
 
 export class DatumValueConverter {
   toView(value) {
-      if (!value) return "";
-      moment.locale('sr');
-      //return moment(value).format('LLLL');
-      return moment(value).format('DD.MM.YYYY');
+    if (!value) return "";
+    moment.locale('sr');
+    //return moment(value).format('LLLL');
+    return moment(value).format('DD.MM.YYYY');
   }
 }
 export class DatumVremeValueConverter {
   toView(value) {
-      if (!value) return "";
-      moment.locale('sr');
-      //return moment(value).format('LLLL');
-      return moment(value).format('DD.MM.YYYY HH:mm:ss');
+    if (!value) return "";
+    moment.locale('sr');
+    //return moment(value).format('LLLL');
+    return moment(value).format('DD.MM.YYYY HH:mm:ss');
   }
 }
 export class DinaraValueConverter {
   toView(value) {
-      if (!value) return "";
-      return value.formatMoney(2, '.', ',');
+    if (!value) return "";
+    return value.formatMoney(2, '.', ',');
   }
 }
