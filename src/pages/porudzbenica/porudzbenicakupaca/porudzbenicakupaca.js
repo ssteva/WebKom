@@ -218,7 +218,7 @@ export class Porudzbenica {
         this.porudzbenicastavkaprazna = res[1];
         if (params.id === "0" || this.porudzbenica.status.oznaka === 'UPR') {
           this.porudzbenica.stavke.forEach((element) => element.edit = true);
-          this.novaStavka();
+          this.novaStavka(false);
         }
 
         this.skladista = res[2];
@@ -265,16 +265,28 @@ export class Porudzbenica {
   //     g.setDataSource(this.dsGrid);
   //   }
   // }
-  novaStavka() {
-    this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
-    this.porudzbenicastavka.edit = true;
-    this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
-    if (this.porudzbenica.odeljenje)
-      this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
-    this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1, this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
-    this.porudzbenica.stavke.push(this.porudzbenicastavka);
-    $('[data-toggle="tooltip"]').tooltip();
-
+  novaStavka(snimi) {
+    if (snimi) {
+      this.snimiTemp().then(res => {
+        this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
+        this.porudzbenicastavka.edit = true;
+        this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
+        if (this.porudzbenica.odeljenje)
+          this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
+        this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1, this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
+        this.porudzbenica.stavke.push(this.porudzbenicastavka);
+        $('[data-toggle="tooltip"]').tooltip();
+      })
+    }else{
+      this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
+      this.porudzbenicastavka.edit = true;
+      this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
+      if (this.porudzbenica.odeljenje)
+        this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
+      this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1, this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
+      this.porudzbenica.stavke.push(this.porudzbenicastavka);
+      $('[data-toggle="tooltip"]').tooltip();
+    }
     // this.table.clear().draw();
     // this.table.rows.add(NewlyCreatedData); // Add new data
     // this.table.columns.adjust().draw(); // Redraw the DataTable
@@ -358,7 +370,7 @@ export class Porudzbenica {
       obj.stavka.ident.naziv = dataItem.naziv;
       if (!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
 
-      if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka();
+      if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka(true);
 
       this.repo.find("Ident/GetPrice?id=" + dataItem.id)
         .then(res => {
@@ -513,19 +525,58 @@ export class Porudzbenica {
     }
     if (confirm("Da li želite da obrišete porudžbenicu?")) {
       this.repo.post('Porudzbenica/Storno?vrsta=' + this.porudzbenica.vrsta + "&id=" + this.porudzbenica.id)
-      .then(res => {
-        if (res === 1) {
-          toastr.success("Uspešan storno");
-          this.router.navigateToRoute("porudzbenicekupaca");
-        }else{
-          toastr.error("Neuspešan storno");
-        }
-      })
-      .error(err => toastr.error(err.statusText));
+        .then(res => {
+          if (res === 1) {
+            toastr.success("Uspešan storno");
+            this.router.navigateToRoute("porudzbenicekupaca");
+          } else {
+            toastr.error("Neuspešan storno");
+          }
+        })
+        .error(err => toastr.error(err.statusText));
     }
   }
+  snimiTemp() {
+    if (this.porudzbenica.kupac) {
+      if (!this.porudzbenica.kupac.id) {
+        this.porudzbenica.kupac = null;
+      }
+    }
+    if (this.porudzbenica.mestoIsporuke) {
+      if (!this.porudzbenica.mestoIsporuke.id) {
+        this.porudzbenica.mestoIsporuke = null;
+      }
+    }
+    if (this.porudzbenica.odeljenje) {
+      if (!this.porudzbenica.odeljenje.id) {
+        this.porudzbenica.odeljenje = null;
+      }
+    }
+    if (this.porudzbenica.skladiste) {
+      if (!this.porudzbenica.skladiste.id) {
+        this.porudzbenica.skladiste = null;
+      }
+    }
+    //brisem poslednju stavku
+    if (this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident) {
+      if (!this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident.id) {
+        this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
+      }
+    } else {
+      this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
+    }
 
-  snimi(obj, e) {
+    return this.repo.post('Porudzbenica', this.porudzbenica)
+      .then(res => {
+        toastr.success("Uspešno snimljeno");
+        this.router.navigateToRoute("porudzbenicakupaca", {
+          id: res.id
+        });
+
+      })
+      .error(err => toastr.error(err.statusText));
+  }
+  snimi() {
     if (this.porudzbenica.stavke.length === 1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !== null && !this.porudzbenica.stavke[0].ident.id))) {
       toastr.error("Porudžbenica nema stavke");
       return;
@@ -570,13 +621,6 @@ export class Porudzbenica {
     if (!ok) {
       toastr.error("Stavke porudžbenice nisu ispravne");
       return;
-    }
-
-    if (this.porudzbenica.odeljenje && !this.porudzbenica.odeljenje.id) {
-      this.porudzbenica.odeljenje = null;
-    }
-    if (this.porudzbenica.skladiste && !this.porudzbenica.skladiste.id) {
-      this.porudzbenica.skladiste = null;
     }
 
     //brisem poslednju stavku
