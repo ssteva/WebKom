@@ -2,7 +2,11 @@
   <require from="./porudzbenicekupaca.css"></require>
   Proba
   <ak-grid id="grid" k-widget.bind="grid" k-data-source.bind="datasource" 
-    k-pageable.bind="common.pageable" k-filterable.bind="common.filterobj" k-sortable.bind="true" style="width: 90%">
+    k-pageable.bind="common.pageable" 
+    k-filterable.bind="common.filterobj" 
+    k-sortable.bind="true" 
+    k-on-filter-menu-init.delegate="common.filterMenu($event.detail)"
+    style="width: 90%">
     <ak-grid-toolbar>
       <ak-template>
   
@@ -12,8 +16,9 @@
     <ak-col k-title="Broj dokumenta" k-field="broj"></ak-col>
     <ak-col k-title="Kupac" k-field="kupac.naziv"></ak-col>
     <ak-col k-title="Mesto isporuke" k-field="mestoIsporuke.naziv"></ak-col>
-    <ak-col k-title="Datum" k-field="datum" k-format="{0:dd.MM.yyyy}"></ak-col>
-    <ak-col k-title="Datum važenja" k-field="datumVazenja" k-format="{0:dd.MM.yyyy}"></ak-col>
+    <ak-col k-title="Datum"  k-field="datum" k-format="{0:dd.MM.yyyy}" k-filterable.bind="common.datumDokumentaFilter"></ak-col>
+    <ak-col k-title="Datum važenja" k-field="datumVazenja" k-format="{0:dd.MM.yyyy}" k-filterable.bind="common.datumDokumentaFilter"></ak-col>
+    <ak-col k-title="Status" k-field="status.naziv"></ak-col>
     <ak-col k-title="Opcije" k-width="80px">
       <ak-template>
         <button class="btn btn-primary btn-sm" 

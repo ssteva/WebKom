@@ -267,7 +267,7 @@ export class Porudzbenica {
   // }
   novaStavka(snimi) {
     if (snimi) {
-      this.snimiTemp().then(res => {
+      this.snimiStavke().then(res => {
         this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
         this.porudzbenicastavka.edit = true;
         this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
@@ -313,27 +313,27 @@ export class Porudzbenica {
     }
   }
 
-  onMestoIsporukeOpen(e, dis) {
-    this.cboMestoIsporuke.dataSource.read()
-    //this.cboMestoIsporuke.refresh();
-  }
+  // onMestoIsporukeOpen(e, dis) {
+  //   this.cboMestoIsporuke.dataSource.read()
+  //   //this.cboMestoIsporuke.refresh();
+  // }
   onKupacSelect(e) {
     let dataItem = this.cboKupac.dataItem(e.item);
     if (dataItem && dataItem.id) {
       this.porudzbenica.danaZaPlacanje = dataItem.danaZaPlacanje;
+      this.porudzbenica.mestoIsporuke = dataItem;
     } else {
       this.porudzbenica.kupac = null;
     }
   }
-  onKupacOpen(e, dis) {
-    this.cboKupac.dataSource.read()
-    //this.cboKupac.refresh();
-  }
+  // onKupacOpen(e, dis) {
+  //   this.cboKupac.dataSource.read()
+  //   //this.cboKupac.refresh();
+  // }
   onKupacChange(e, dis) {
-    //let dataItem = this.cboKupac.dataItem(e.item);
-    if (e.sender.value() === "") {
-      this.porudzbenica.kupac = null;
-    }
+    // if (e.sender.value() === "") {
+    //   this.porudzbenica.kupac = null;
+    //}
 
     //this.cboKupac.refresh();
   }
@@ -370,13 +370,14 @@ export class Porudzbenica {
       obj.stavka.ident.naziv = dataItem.naziv;
       if (!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
 
-      if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka(true);
+      //if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka(true);
 
       this.repo.find("Ident/GetPrice?id=" + dataItem.id)
         .then(res => {
           obj.stavka.cena = res;
           obj.stavka.konacnaCena = res;
           obj.stavka.vrednost = obj.stavka.konacnaCena * obj.stavka.poruceno;
+          this.novaStavka(true);
           //if(this.txtPoruceno) this.txtPoruceno.focus();
           let widget = kendo.widgetInstance($("#numPoruceno" + obj.stavka.rbr), kendo.ui);
           if (widget) widget.focus();
@@ -384,15 +385,15 @@ export class Porudzbenica {
         .error(err => toastr.error(err.statusText));
     }
   }
-  onIdentOpen(e, dis) {
-    e.sender.dataSource.read()
-    this.cboKupac.refresh();
-  }
+  // onIdentOpen(e, dis) {
+  //   e.sender.dataSource.read()
+  //   this.cboKupac.refresh();
+  // }
   onIdentChange(e, dis) {
-    let dataItem = e.sender.dataItem(e.item);
-    if (!dataItem) {
+    // let dataItem = e.sender.dataItem(e.item);
+    // if (!dataItem) {
 
-    }
+    // }
   }
   onRabatChange(obj, e) {
     let porudzbenicastavka = obj.stavka;
@@ -536,51 +537,27 @@ export class Porudzbenica {
         .error(err => toastr.error(err.statusText));
     }
   }
-  snimiTemp() {
-    if (this.porudzbenica.kupac) {
-      if (!this.porudzbenica.kupac.id) {
-        this.porudzbenica.kupac = null;
+  snimiStavke() {
+    this.porudzbenica.stavke.forEach((element, index) => {
+      if (element.odeljenje) {
+        if (!element.odeljenje.id) {
+          element.odeljenje = null;
+        }
       }
-    }
-    if (this.porudzbenica.mestoIsporuke) {
-      if (!this.porudzbenica.mestoIsporuke.id) {
-        this.porudzbenica.mestoIsporuke = null;
-      }
-    }
-    if (this.porudzbenica.odeljenje) {
-      if (!this.porudzbenica.odeljenje.id) {
-        this.porudzbenica.odeljenje = null;
-      }
-    }
-    if (this.porudzbenica.skladiste) {
-      if (!this.porudzbenica.skladiste.id) {
-        this.porudzbenica.skladiste = null;
-      }
-    }
-    //brisem poslednju stavku
-    if (this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident) {
-      if (!this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident.id) {
-        this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
-      }
-    } else {
-      this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
-    }
+    });
+    return this.repo.post('Porudzbenica/SnimiStavke?id=' + this.porudzbenica.id, this.porudzbenica.stavke)
+    .then(res => {
 
-    return this.repo.post('Porudzbenica', this.porudzbenica)
-      .then(res => {
-        toastr.success("Uspešno snimljeno");
-        this.router.navigateToRoute("porudzbenicakupaca", {
-          id: res.id
-        });
+    })
+    .error(err => toastr.error(err.statusText));
 
-      })
-      .error(err => toastr.error(err.statusText));
+    
   }
   snimi() {
-    if (this.porudzbenica.stavke.length === 1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !== null && !this.porudzbenica.stavke[0].ident.id))) {
-      toastr.error("Porudžbenica nema stavke");
-      return;
-    }
+    // if (this.porudzbenica.stavke.length === 1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !== null && !this.porudzbenica.stavke[0].ident.id))) {
+    //   toastr.error("Porudžbenica nema stavke");
+    //   return;
+    // }
     if (!this.porudzbenica.kupac) {
       toastr.error("Kupac nije odabran");
       return;

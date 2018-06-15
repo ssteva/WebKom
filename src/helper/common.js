@@ -4,6 +4,32 @@
 //@inject(Endpoint.of())
 export class Common {
   roles = ["Komercijalista", "Supervizor", "Administrator"];
+  filterMenu(e){
+    //e.sender.dataSource.options.schema.model.fields[e.field].type == "date"
+    if (e.field.includes("datum")) {
+        let beginOperator = e.container.find("[data-role=dropdownlist]:eq(0)").data("kendoDropDownList");
+        beginOperator.value("gte");
+        beginOperator.trigger("change");
+
+        let endOperator = e.container.find("[data-role=dropdownlist]:eq(2)").data("kendoDropDownList");
+        endOperator.value("lte");
+        endOperator.trigger("change");
+        
+        e.container.find(".k-dropdown").hide();
+    }
+  };
+  datumDokumentaFilter =
+  {
+      extra : true,
+      messages: {
+          info: "Period od - do" // sets the text on top of the Filter menu
+      },
+      ui: (element) => {
+          element.kendoDatePicker({
+              format: "dd.MM.yyyy"
+          });
+      }
+  };
   pageable = {
     messages: {
       display: "{0} - {1} of {2} redova", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records

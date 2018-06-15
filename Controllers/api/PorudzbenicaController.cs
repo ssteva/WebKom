@@ -12,6 +12,7 @@ using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using ISession = NHibernate.ISession;
 using Newtonsoft.Json;
 using System.Web;
+using System.Collections.Generic;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace webkom.Controllers.api
@@ -236,7 +237,34 @@ namespace webkom.Controllers.api
             }
 
         }
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult SnimiStavke([FromQuery] int id, [FromBody] List<PorudzbenicaStavka> stavke)
+        {
+            var porudzbenica = _session.Get<Porudzbenica>(id);
 
+            using (var trans = _session.BeginTransaction())
+            {
+                try
+                {
+                    //_session.SaveOrUpdate(stavke);
+                    foreach (var stavka in stavke.Where(s => !s.Obrisan))
+                    {
+                        stavka.Porudzbenica = porudzbenica;
+                        _session.SaveOrUpdate(stavka);
+                    }
+                    trans.Commit();
+                    return Ok(porudzbenica);
+                }
+                catch (System.Exception)
+                {
+                    return BadRequest(porudzbenica);
+                }
+
+
+            }
+
+        }
         // foreach (var stavka in porudzbenica.Stavke.Where(s => !s.Obrisan))
         // {
         //     stavka.Porudzbenica = porudzbenica;

@@ -12,9 +12,9 @@
     <div class="col-lg-4">
       <div class="form-group">
         <label for="kupac">Kupac</label>
-        <ak-combobox k-data-source.bind="dsKupac" k-auto-bind.bind="false" k-data-text-field="sifra" k-data-value-field="id" k-widget.bind="cboKupac"
+        <ak-combobox k-data-source.bind="dsKupac" k-auto-bind.bind="true" k-data-text-field="sifra" k-data-value-field="id" k-widget.bind="cboKupac"
           k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.kupac.id" k-on-select.delegate="onKupacSelect($event.detail)"
-          k-on-open.delegate="onKupacOpen($event.detail, $this)" k-on-change.delegate="onKupacChange($event.detail, $this)"
+          k-on-change.delegate="onKupacChange($event.detail, $this)"
           style="width: 100%">
           <ak-template>
             <span>${sifra}</span>
@@ -43,14 +43,15 @@
     <div class="col-lg-4">
       <div class="form-group">
         <label for="mestoisporuke">Mesto isporuke</label>
-        <ak-combobox k-data-source.bind="dsMestoIsporuke" k-auto-bind.bind="false" k-data-text-field="sifra" k-data-value-field="id"
+        <ak-combobox k-data-source.bind="dsMestoIsporuke" k-auto-bind.bind="true" k-data-text-field="sifra" k-data-value-field="id"
           k-widget.bind="cboMestoIsporuke" k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="porudzbenica.mestoIsporuke.id"
-          k-on-select.delegate="onMestoIsporukeSelect($event.detail)" k-on-open.delegate="onMestoIsporukeOpen($event.detail, $this)"
+          k-on-select.delegate="onMestoIsporukeSelect($event.detail)" 
           style="width: 100%">
           <ak-template>
             <span>${sifra}</span>
           </ak-template>
         </ak-combobox>
+        <small style="color: red" class="form-text">${porudzbenica.mestoIsporuke.id ? '' : 'Mesto isporuke je obavezan podatak'} </small>
         <!-- <small id="emailHelp" class="form-text text-muted">Izabrati kupca</small> -->
       </div>
       <div class="form-group row">
@@ -94,12 +95,14 @@
   </div>
   <br>
   <br>
-  <button class="btn btn-primary" click.delegate="snimi()">Snimi</button>
-  <button if.bind="porudzbenica.id > 0" class="btn btn-danger" click.delegate="storno()">Obriši</button>
+  <button class="btn btn-primary" click.delegate="snimi()">
+    <i class="fa fa-save"></i> Snimi</button>
+  <button if.bind="porudzbenica.id > 0" class="btn btn-danger" click.delegate="storno()">
+      <i class="fa fa-trash"></i> Obriši</button>
   <br>
   <br>
   <hr>
-  <div class="row">
+  <div if.bind="porudzbenica.id>0" class="row">
     <div class="col-lg-12">
 
       <div class="table-responsive-xl">
@@ -129,9 +132,9 @@
               <td>${stavka.rbr}</td>
               <td>
                 <div if.bind="stavka.edit">
-                  <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="false" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
+                  <ak-combobox k-data-source.bind="dsIdent" k-auto-bind.bind="true" k-data-text-field="naziv" k-data-value-field="id" k-widget.bind="cboIdent"
                     k-filter="contains" k-min-length="3" k-suggest="true" k-value.two-way="stavka.ident.id" k-on-select.delegate="onIdentSelect($event.detail, $this)"
-                    k-on-change.delegate="onIdentChange($event.detail, $this)" k-on-open.delegate="onIdentOpen($event.detail)">
+                    k-on-change.delegate="onIdentChange($event.detail, $this)">
                   </ak-combobox>
                 </div>
                 <div if.bind="!stavka.edit">
