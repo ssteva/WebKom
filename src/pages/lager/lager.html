@@ -1,3 +1,21 @@
 <template>
-  Lager
+  <ak-grid id="grid" k-widget.bind="grid"
+                     k-data-source.bind="datasource"
+                     k-pageable.bind="common.pageable"
+                     k-filterable.bind="common.filterobj"
+                     k-sortable.bind="true"
+                     k-excel.bind="{ fileName: 'Lager.xlsx' }"
+                     style="width: 90%">
+                <ak-grid-toolbar>
+                    <ak-template>
+                        <a class="k-button k-button-icontext k-grid-excel" href="javascript:void()"><span class="k-icon k-i-excel"></span>Export to Excel</a>
+                        <!--<a class="k-button k-button-icontext k-grid-pdf" href="javascript:void()"><span class="k-icon k-i-pdf"></span>Export to PDF</a>-->
+                    </ak-template>
+                </ak-grid-toolbar>
+                <ak-col k-title="Skladište" k-field="skladiste"></ak-col>
+                <ak-col k-title="Ident" k-field="ident"></ak-col>
+                <ak-col k-title="Zaliha" k-field="zaliha"></ak-col>
+                <ak-col k-title="Rezervisano" k-field="rezervisano"></ak-col>
+                <ak-col k-title="Poručeno" k-field="poruceno"></ak-col>
+            </ak-grid>
 </template>

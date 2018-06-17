@@ -36,6 +36,21 @@ export class DataCache {
     });
     return promise;
   }
+  getStatusiPork() {
+    var promise = new Promise((resolve, reject) => {
+		if (!this.statusiPork) {
+		  this.repo.find('Status/?vrsta=PORK')
+			.then(result => {
+			  this.statusiPork = result;
+			  resolve(this.statusiPork);
+			})
+			.catch(err => reject(err));
+		} else {
+		  resolve(this.statusiPork);
+		}
+	  });
+	  return promise;
+  }
   getSkladista() {
     var promise = new Promise((resolve, reject) => {
 		if (!this.skladista) {

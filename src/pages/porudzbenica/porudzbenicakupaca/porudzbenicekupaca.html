@@ -18,7 +18,7 @@
     <ak-col k-title="Mesto isporuke" k-field="mestoIsporuke.naziv"></ak-col>
     <ak-col k-title="Datum"  k-field="datum" k-format="{0:dd.MM.yyyy}" k-filterable.bind="common.datumDokumentaFilter"></ak-col>
     <ak-col k-title="Datum važenja" k-field="datumVazenja" k-format="{0:dd.MM.yyyy}" k-filterable.bind="common.datumDokumentaFilter"></ak-col>
-    <ak-col k-title="Status" k-field="status.naziv"></ak-col>
+    <ak-col k-title="Status" k-field="status.naziv" k-filterable.bind="statusFilter"></ak-col>
     <ak-col k-title="Opcije" k-width="80px">
       <ak-template>
         <button class="btn btn-primary btn-sm" 

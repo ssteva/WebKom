@@ -4,23 +4,44 @@ import {AuthService} from 'aurelia-authentication';
 import {EntityManager} from 'aurelia-orm';
 import {Common} from 'helper/common';
 import {Router} from 'aurelia-router';
+import {DataCache} from 'helper/datacache';
 import 'kendo/js/kendo.grid';
 import 'kendo/js/kendo.dropdownlist';
 import * as toastr from 'toastr';
 
-@inject(AuthService, Common, Endpoint.of(), Router)
+@inject(AuthService, Common, Endpoint.of(), Router, DataCache)
 export class PorudzbeniceKupaca {
 
-  constructor(authService, common, repo, router) {
+  constructor(authService, common, repo, router, dc) {
     this.authService = authService;
     this.repo = repo;
     this.common = common;
     this.router = router;
+    this.dc = dc;
     let payload = this.authService.getTokenPayload();
     if (payload) {
       this.korisnik = payload.unique_name;
       this.role = payload.role;
-    }
+    };
+    this.statusFilter =
+    {
+        extra : false,
+        ui: (element) => {
+            element.kendoDropDownList({
+                dataTextField: "naziv",
+                dataValueField: "id",
+                dataSource: this.statusi
+            });
+        },
+        operators: {
+            string: {
+                contains: "Sadrže"
+            },
+            number: {
+                eq: "je jednak"
+            }
+        }
+    };
     this.datasource = new kendo.data.DataSource({
       pageSize: 10,
       batch: false,
@@ -51,6 +72,19 @@ export class PorudzbeniceKupaca {
     }
     });
   }
+
+  activate(params, routeData) {
+    var promises = [
+      this.dc.getStatusiPork()
+    ];
+
+    return Promise.all(promises)
+      .then(res => {
+        this.statusi = res[0];
+      })
+      .catch(err => toastr.error(err.statusText));
+  }
+
   detailInit(e) {
     let detailRow = e.detailRow;
 

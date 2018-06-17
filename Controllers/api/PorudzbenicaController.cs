@@ -108,13 +108,16 @@ namespace webkom.Controllers.api
             Porudzbenica dok = null;
             Subjekt Kupac = null;
             Subjekt MestoIsporuke = null;
+            //Status Status = null;
             var upit = _session.QueryOver<Porudzbenica>(() => dok)
               .JoinAlias(x => x.Kupac, () => Kupac, JoinType.InnerJoin)
               .JoinAlias(x => x.MestoIsporuke, () => MestoIsporuke, JoinType.InnerJoin)
+              //.JoinAlias(x => x.Status, () => Status, JoinType.InnerJoin)
               .Where(x => !x.Obrisan);
             var rows = _session.QueryOver<Porudzbenica>(() => dok)
               .JoinAlias(x => x.Kupac, () => Kupac, JoinType.InnerJoin)
               .JoinAlias(x => x.MestoIsporuke, () => MestoIsporuke, JoinType.InnerJoin)
+              //.JoinAlias(x => x.Status, () => Status, JoinType.InnerJoin)
               .Where(x => !x.Obrisan);
             if (kr.Filter != null && kr.Filter.Filters.Any())
             {
@@ -132,6 +135,11 @@ namespace webkom.Controllers.api
                     {
                         upit.AndRestrictionOn(() => MestoIsporuke.Naziv).IsInsensitiveLike(filter.Value, MatchMode.Anywhere);
                         rows.AndRestrictionOn(() => MestoIsporuke.Naziv).IsInsensitiveLike(filter.Value, MatchMode.Anywhere);
+                    }
+                    else if (prop.Contains("Status"))
+                    {
+                        upit.And(x=>x.Status.Id == int.Parse(filter.Value));
+                        rows.And(x=>x.Status.Id == int.Parse(filter.Value));
                     }
                     else if (prop.Contains("Datum"))
                     {
@@ -167,6 +175,8 @@ namespace webkom.Controllers.api
                         prop = "Kupac.Naziv";
                     if (prop.Contains("MestoIsporuke"))
                         prop = "MestoIsporuke.Naziv";
+                    if (prop.Contains("Status"))
+                        prop = "Status.Id";
                     upit.UnderlyingCriteria.AddOrder(new Order(prop, sort.Dir.ToLower() == "asc"));
                 }
             }

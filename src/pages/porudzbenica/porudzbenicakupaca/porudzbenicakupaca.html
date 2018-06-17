@@ -31,12 +31,12 @@
       <div class="form-group">
         <label for="datum">Datum</label>
         <br>
-        <input id="datum" ak-datepicker="k-value.bind: porudzbenica.datum; k-format.bind: 'dd.MM.yyyy'" style="width: 180px" />
+        <input id="datum" ak-datepicker="k-widget.two-way: cboDatum; k-value.bind: porudzbenica.datum; k-format.bind: 'dd.MM.yyyy'" style="width: 180px" />
       </div>
       <div class="form-group">
         <label for="datumVazenja">Datum važenja</label>
         <br>
-        <input id="datumVazenja" ak-datepicker="k-value.bind: porudzbenica.datumVazenja; k-format.bind: 'dd.MM.yyyy'" style="width: 180px"
+        <input id="datumVazenja" ak-datepicker="k-widget.two-way: cboDatumVazenja; k-value.bind: porudzbenica.datumVazenja; k-format.bind: 'dd.MM.yyyy'" style="width: 180px"
         />
       </div>
     </div>
@@ -84,7 +84,7 @@
       </div>
       <div class="form-group">
         <label for="status">Status</label>
-        <ak-drop-down-list k-data-source.bind="dsStatus" k-data-text-field="naziv" k-widget.bind="cboStatus" k-auto-bind.bind="true"
+        <ak-drop-down-list k-data-source.bind="statusi" k-data-text-field="naziv" k-widget.bind="cboStatus" k-auto-bind.bind="true"
           k-data-value-field="id" k-value.two-way="porudzbenica.status.id" k-on-select.delegate="onSelectStatus($event.detail)"
           style="width: 100%">
         </ak-drop-down-list>

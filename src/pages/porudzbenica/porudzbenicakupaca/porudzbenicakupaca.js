@@ -38,8 +38,9 @@ export class Porudzbenica {
 
   porudzbenica = null;
   porudzbenicastavka = null;
-  skladista = [];
-  odeljenja = [];
+  lock = false;
+  // skladista = [];
+  // odeljenja = [];
   constructor(authService, dc, common, dialogService, repo, eventAggregator, router) {
     this.authService = authService;
     this.repo = repo;
@@ -180,49 +181,53 @@ export class Porudzbenica {
       serverSorting: true,
       serverFiltering: true,
     });
-    this.dsStatus = new kendo.data.DataSource({
-      pageSize: 10,
-      batch: false,
-      transport: {
-        read: (o) => {
-          let filter = "";
-          if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
-            filter = o.data.filter.filters[0].value;
-          }
-          this.repo.find('Status/?vrsta=PORK')
-            .then(result => {
-              o.success(result);
-            })
-            .catch(err => {
-              console.log(err.statusText);
-            });
-        }
-      },
-      serverPaging: true,
-      serverSorting: true,
-      serverFiltering: true,
-    });
+    // this.dsStatus = new kendo.data.DataSource({
+    //   pageSize: 10,
+    //   batch: false,
+    //   transport: {
+    //     read: (o) => {
+    //       let filter = "";
+    //       if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
+    //         filter = o.data.filter.filters[0].value;
+    //       }
+    //       this.repo.find('Status/?vrsta=PORK')
+    //         .then(result => {
+    //           o.success(result);
+    //         })
+    //         .catch(err => {
+    //           console.log(err.statusText);
+    //         });
+    //     }
+    //   },
+    //   serverPaging: true,
+    //   serverSorting: true,
+    //   serverFiltering: true,
+    // });
   }
 
   activate(params, routeData) {
     var promises = [
       this.repo.findOne("Porudzbenica/?id=" + params.id + "&vrsta=PORK"),
       this.repo.findOne("Porudzbenica/PorudzbenicaStavka?id=0&vrsta=PORK"),
-      this.dc.getSkladista(),
-      this.dc.getOdeljenja()
+      this.dc.getStatusiPork()
     ];
 
     return Promise.all(promises)
       .then(res => {
         this.porudzbenica = res[0];
         this.porudzbenicastavkaprazna = res[1];
-        if (params.id === "0" || this.porudzbenica.status.oznaka === 'UPR') {
+        if (params.id === "0" || this.porudzbenica.status.oznaka === 'AK') {
           this.porudzbenica.stavke.forEach((element) => element.edit = true);
           this.novaStavka(false);
         }
-
-        this.skladista = res[2];
-        this.odeljenja = res[3];
+        if (params.id === "0" || this.porudzbenica.status.oznaka === 'PT') {
+          //this.porudzbenica.stavke.forEach((element) => element.edit = f);
+          //this.novaStavka(false);
+          this.lock = true;
+        }
+        this.statusi = res[2];
+        // this.skladista = res[2];
+        // this.odeljenja = res[3];
 
       })
       .catch(err => toastr.error(err.statusText));
@@ -255,6 +260,10 @@ export class Porudzbenica {
     this.subscription = this.eventAggregator.subscribe('loader', payload => {
       this.loading = payload;
     });
+
+    if(this.lock){
+      this.zakljucaj();
+    }
   }
   // setGridDataSource(g){
   //   if(this.porudzbenica){
@@ -265,6 +274,14 @@ export class Porudzbenica {
   //     g.setDataSource(this.dsGrid);
   //   }
   // }
+  zakljucaj(){
+    this.cboKupac.enable(false);
+    this.cboMestoIsporuke.enable(false);
+    this.cboOdeljenje.enable(false);
+    this.cboSkladiste.enable(false);
+    this.cboDatum.enable(false);
+    this.cboDatumVazenja.enable(false);
+  }
   novaStavka(snimi) {
     if (snimi) {
       this.snimiStavke().then(res => {
@@ -547,7 +564,7 @@ export class Porudzbenica {
     });
     return this.repo.post('Porudzbenica/SnimiStavke?id=' + this.porudzbenica.id, this.porudzbenica.stavke)
     .then(res => {
-
+      toastr.success("Uspešno snimljeno");
     })
     .error(err => toastr.error(err.statusText));
 
@@ -615,6 +632,13 @@ export class Porudzbenica {
       this.repo.post('Porudzbenica', this.porudzbenica)
         .then(res => {
           toastr.success("Uspešno snimljeno");
+          if(res.status.oznaka === "AK"){
+            this.porudzbenica.stavke.forEach((element) => element.edit = true);
+          }
+          if(res.status.oznaka === "PT"){
+            this.porudzbenica.stavke.forEach((element) => element.edit = false);
+            this.zakljucaj();
+          }
           this.router.navigateToRoute("porudzbenicakupaca", {
             id: res.id
           });
@@ -650,3 +674,4 @@ export class DinaraValueConverter {
     return value.formatMoney(2, '.', ',');
   }
 }
+
