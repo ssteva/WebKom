@@ -14,6 +14,8 @@ namespace webkom.Models
         public virtual string Oznaka { get; set; }
         public virtual string Vrsta { get; set; }
         public virtual string Naziv { get; set; }
+        public virtual bool Defaultni { get; set; }
+        public virtual bool Zakljucaj { get; set; }
         
     }
 }

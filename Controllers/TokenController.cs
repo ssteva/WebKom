@@ -86,7 +86,7 @@ namespace webkom.Controllers
       {
         original = headers["Authorization"].ToString().Replace("Bearer ", "");
       }
-
+  
 
 
       if (string.IsNullOrEmpty(original))
@@ -147,6 +147,7 @@ namespace webkom.Controllers
       subj.AddClaim(new Claim("Prezime", prezime.Value));
       subj.AddClaim(new Claim(ClaimTypes.Email, email.Value));
       subj.AddClaim(new Claim(ClaimTypes.Name, username.Value));
+      subj.AddClaim(new Claim(JwtRegisteredClaimNames.UniqueName, username.Value));
       subj.AddClaim(new Claim(ClaimTypes.NameIdentifier, userid.Value));
       subj.AddClaims(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
@@ -199,6 +200,7 @@ namespace webkom.Controllers
                   new Claim("Prezime", user.Prezime ?? "" ),
                   new Claim(ClaimTypes.Email, user.Email),
                   new Claim(ClaimTypes.Name, user.KorisnickoIme),
+                  new Claim(JwtRegisteredClaimNames.UniqueName, user.KorisnickoIme),
                   new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
         });
         subj.AddClaims(roles.Select(r => new Claim(ClaimTypes.Role, r)));

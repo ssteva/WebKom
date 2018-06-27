@@ -18,7 +18,7 @@ using System.Collections.Generic;
 namespace webkom.Controllers.api
 {
     [Route("api/[controller]")]
-    //[Authorize("Bearer")]
+    [Authorize("Bearer")]
     public class PorudzbenicaController : Controller
     {
         private readonly ISession _session;
@@ -219,6 +219,7 @@ namespace webkom.Controllers.api
         public ActionResult Post([FromBody]Porudzbenica porudzbenica)
         {
             var anid = Guid.NewGuid();
+            
             if (porudzbenica.Uid == null)
                 porudzbenica.Uid = anid;
 

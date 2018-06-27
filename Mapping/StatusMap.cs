@@ -24,6 +24,8 @@ namespace webkom.Mapping
       Map(x=>x.Oznaka).CustomSqlType("varchar(5)");
       Map(x=>x.Vrsta).CustomSqlType("varchar(20)");
       Map(x=>x.Naziv);
+      Map(x=>x.Defaultni);
+      Map(x=>x.Zakljucaj);
     }
   }
 }

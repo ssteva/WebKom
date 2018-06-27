@@ -39,6 +39,7 @@ export class Porudzbenica {
   porudzbenica = null;
   porudzbenicastavka = null;
   lock = false;
+  dozvolinavigaciju = false;
   // skladista = [];
   // odeljenja = [];
   constructor(authService, dc, common, dialogService, repo, eventAggregator, router) {
@@ -211,21 +212,24 @@ export class Porudzbenica {
       this.repo.findOne("Porudzbenica/PorudzbenicaStavka?id=0&vrsta=PORK"),
       this.dc.getStatusiPork()
     ];
-
+    //this.lock= false;
     return Promise.all(promises)
       .then(res => {
         this.porudzbenica = res[0];
         this.porudzbenicastavkaprazna = res[1];
-        if (params.id === "0" || this.porudzbenica.status.oznaka === 'AK') {
+        if (!this.porudzbenica.status.zakljucaj) {
           this.porudzbenica.stavke.forEach((element) => element.edit = true);
           this.novaStavka(false);
+          this.original = JSON.stringify(this.porudzbenica);
         }
-        if (params.id === "0" || this.porudzbenica.status.oznaka === 'PT') {
+        if (this.porudzbenica.status.zakljucaj) {
           //this.porudzbenica.stavke.forEach((element) => element.edit = f);
           //this.novaStavka(false);
           this.lock = true;
+          this.original = JSON.stringify(this.porudzbenica);
         }
         this.statusi = res[2];
+        
         // this.skladista = res[2];
         // this.odeljenja = res[3];
 
@@ -263,6 +267,33 @@ export class Porudzbenica {
 
     if(this.lock){
       this.zakljucaj();
+    }
+  }
+  canDeactivate(){
+    if (this.porudzbenica.odeljenje) {
+      if (!this.porudzbenica.odeljenje.id) {
+        this.porudzbenica.odeljenje = null;
+      }
+    }
+    if (this.porudzbenica.skladiste) {
+      if (!this.porudzbenica.skladiste.id) {
+        this.porudzbenica.skladiste = null;
+      }
+    }
+    let ok = true;
+    this.porudzbenica.stavke.forEach((element, index) => {
+      if (element.odeljenje) {
+        if (!element.odeljenje.id) {
+          element.odeljenje = null;
+        }
+      }
+    });
+    if(this.dozvolinavigaciju && !this.porudzbenica.status.zakljucaj && (this.porudzbenica.id===0 || this.original !== JSON.stringify(this.porudzbenica)) ){
+      if (confirm("Da li želite da snimite unete podatke?")) {
+        return this.snimi(true);
+      }else{
+        return true;
+      }
     }
   }
   // setGridDataSource(g){
@@ -570,7 +601,7 @@ export class Porudzbenica {
 
     
   }
-  snimi() {
+  snimi(izlaz) {
     // if (this.porudzbenica.stavke.length === 1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !== null && !this.porudzbenica.stavke[0].ident.id))) {
     //   toastr.error("Porudžbenica nema stavke");
     //   return;
@@ -632,6 +663,7 @@ export class Porudzbenica {
       this.repo.post('Porudzbenica', this.porudzbenica)
         .then(res => {
           toastr.success("Uspešno snimljeno");
+          if(izlaz) return true;
           if(res.status.oznaka === "AK"){
             this.porudzbenica.stavke.forEach((element) => element.edit = true);
           }
@@ -639,6 +671,7 @@ export class Porudzbenica {
             this.porudzbenica.stavke.forEach((element) => element.edit = false);
             this.zakljucaj();
           }
+          this.dozvolinavigaciju = true;
           this.router.navigateToRoute("porudzbenicakupaca", {
             id: res.id
           });
