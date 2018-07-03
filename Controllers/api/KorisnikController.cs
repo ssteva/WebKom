@@ -41,13 +41,21 @@ namespace webkom.Controllers.api
       _userManager = userManager;
     }
 
+    // [HttpGet("{id}")]
+    // public Korisnik Get(int id)
+    // {
+    //   var korisnik = _session.Get<Korisnik>(id);
+    //   return korisnik;
+    // }
     [HttpGet("{id}")]
-    public Korisnik Get(int id)
+    public Korisnik Get(string id)
     {
-      var korisnik = _session.Get<Korisnik>(id);
-      return korisnik;
+        var upit = _session.QueryOver<Korisnik>()
+            .Where(x => x.Obrisan == false && x.KorisnickoIme == id);
+        //.And(x => x.Servis.CentralniEtg == true);
+        var lista = upit.List<Korisnik>().FirstOrDefault();
+        return lista;
     }
-
     [HttpGet()]
     [Route("[Action]")]
     public IList<Korisnik> ListaKorisnika()

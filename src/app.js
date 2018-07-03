@@ -31,6 +31,7 @@ export class App {
         toastr.error(err.statusText);
       });
   }
+
 }
 Number.prototype.formatMoney = function(c, d, t){
   var n = this, 

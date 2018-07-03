@@ -67,6 +67,7 @@ export function configure(aurelia) {
         .kendoDateTimePicker()
         .kendoAutoComplete()
         .kendoDropDownList()
+        .kendoTabStrip()
   })
   .plugin('aurelia-validation')
   .plugin('aurelia-after-attached-plugin')
@@ -81,6 +82,16 @@ export function configure(aurelia) {
     baseConfig => {
         baseConfig.configure(authConfig);
     });
+
+  $(':input').keypress(function(e){
+    if(e.which == 13){
+      ti = $(this).attr('tabindex') + 1;
+      $('input[tabindex='+ti+']').focus();
+      //try to use________ e.which = 9; return e.which;
+    }else if(e.which == 9){
+      e.preventDefault(); //or return false;
+    }
+  });
 
 
   if (environment.debug) {

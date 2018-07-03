@@ -7,6 +7,7 @@ import {Router} from 'aurelia-router';
 import {DataCache} from 'helper/datacache';
 import 'kendo/js/kendo.grid';
 import 'kendo/js/kendo.dropdownlist';
+import 'kendo/js/kendo.tabstrip';
 import * as toastr from 'toastr';
 
 @inject(AuthService, Common, Endpoint.of(), Router, DataCache)
@@ -93,14 +94,14 @@ export class PorudzbeniceKupaca {
             open: { effects: 'fadeIn' }
         }
     });
-
+    var indeks =  e.masterRow.index(".k-master-row") + 1;
     detailRow.find('.stavke').kendoGrid({
         dataSource: {
             pageSize: 10,
             batch: false,
             transport: {
                 read: (o)=> {
-                    this.repo.post('Dokument/StavkePregledGrid', o.data)    
+                    this.repo.post('Porudzbenica/StavkePregledGrid', o.data)    
                     //this.lokalep.post('Zamena/PregledGrid', o.data)                    
                         .then(result => {
                             o.success(result);
@@ -117,7 +118,9 @@ export class PorudzbeniceKupaca {
                 data: "data",
                 total: "total"
             },
-            filter: { field: 'Dokument.Id', operator: 'eq', value: e.data.id }
+            filter: { field: 'Porudzbenica.Id', operator: 'eq', value: e.data.id },
+            aggregate: [ { field: "rbr", aggregate: "count" },
+            { field: "poruceno", aggregate: "sum"}],
         },
         //    pageSize: 10,
         //    batch: false,
@@ -141,11 +144,22 @@ export class PorudzbeniceKupaca {
         sortable: true,
         pageable: true,
         columns: [
-          { field: 'rbr', title: 'Redni broj', width: '70px' },
-          { field: 'rezervniDeo.sifra', title: 'Šifra', width: '70px' },
-          { field: 'rezervniDeo.naziv', title: 'Naziv', width: '140px' },
-          { field: 'kolicina', title: 'Količina', width: '70px' },
-          { field: 'cena', title: 'Cena', width: '70px' }
+          { field: 'rbr', title: 'Redni broj', width: '70px', footerTemplate: "Broj stavki: #=count#" },
+          { field: 'ident.sifra', title: 'Ident', width: '120px' },
+          { field: 'ident.naziv', title: 'Naziv', width: '70px' },
+          { field: 'poruceno', title: 'Poručeno', width: '70px', footerTemplate: "Ukupno poručeno: #=sum#" },
+          { field: 'konacnaCena', title: 'Konačna cena', width: '70px' },
+          { /*field: "Total",*/ title: "Vrednost", width: '80px', template: "<span class='totalSpan'>#= poruceno * konacnaCena #</span>", footerTemplate: function(e,a,b){
+            var zbir = 0;
+            //var stavke = $('.stavke').data('kendoGrid').dataSource.view()
+
+            //var detailsGridForRow = $(e.masterRow).siblings('.k-detail-row').find('.k-grid').data('kendoGrid').dataSource.view();
+            var stavke = $("#grid tr:nth-child("  + indeks +  ")").siblings('.k-detail-row').find('.k-grid').data('kendoGrid').dataSource.view();
+            stavke.forEach(stavka=>{
+              zbir += stavka.konacnaCena * stavka.poruceno;
+            })
+              return 'Ukupna vrednost: ' + zbir;
+          } }
         ]
     });
   }

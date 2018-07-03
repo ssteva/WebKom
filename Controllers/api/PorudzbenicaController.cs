@@ -13,6 +13,7 @@ using ISession = NHibernate.ISession;
 using Newtonsoft.Json;
 using System.Web;
 using System.Collections.Generic;
+using System.Globalization;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace webkom.Controllers.api
@@ -100,6 +101,17 @@ namespace webkom.Controllers.api
             var res = upit.ExecuteUpdate();
             return Ok(res);
         }
+        
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult BrisiStavku([FromQuery] int id)
+        {
+
+            var upit = _session.CreateSQLQuery("exec BrisiStavku :id");
+            upit.SetParameter("id", id);
+            var res = upit.ExecuteUpdate();
+            return Ok(res);
+        }
 
         [HttpPost]
         [Route("[Action]")]
@@ -138,8 +150,8 @@ namespace webkom.Controllers.api
                     }
                     else if (prop.Contains("Status"))
                     {
-                        upit.And(x=>x.Status.Id == int.Parse(filter.Value));
-                        rows.And(x=>x.Status.Id == int.Parse(filter.Value));
+                        upit.And(x => x.Status.Id == int.Parse(filter.Value));
+                        rows.And(x => x.Status.Id == int.Parse(filter.Value));
                     }
                     else if (prop.Contains("Datum"))
                     {
@@ -219,28 +231,37 @@ namespace webkom.Controllers.api
         public ActionResult Post([FromBody]Porudzbenica porudzbenica)
         {
             var anid = Guid.NewGuid();
-            
+
             if (porudzbenica.Uid == null)
                 porudzbenica.Uid = anid;
 
             if (porudzbenica.Id == 0)
                 porudzbenica.Broj = Helper.RedniBroj(_session, porudzbenica.Vrsta);
 
-            foreach (var stavka in porudzbenica.Stavke.Where(s => !s.Obrisan))
-            {
-                stavka.Porudzbenica = porudzbenica;
-                //_session.SaveOrUpdate(stavka);
-            }
+
             using (var trans = _session.BeginTransaction())
             {
                 try
                 {
+                    foreach (var stavka in porudzbenica.Stavke.ToList().Where(s => !s.Obrisan))
+                    {
+                        if (stavka.Ident == null)
+                        {
+                            porudzbenica.Stavke.Remove(stavka);
+                        }
+                        else
+                        {
+                            stavka.Porudzbenica = porudzbenica;
+                            _session.SaveOrUpdate(stavka);
+                        }
+                    }
                     _session.SaveOrUpdate(porudzbenica);
                     trans.Commit();
                     return Ok(porudzbenica);
                 }
-                catch (System.Exception)
+                catch (System.Exception ex)
                 {
+                    _logger.LogError(ex.Message);
                     return BadRequest(porudzbenica);
                 }
 
@@ -265,7 +286,7 @@ namespace webkom.Controllers.api
                         _session.SaveOrUpdate(stavka);
                     }
                     trans.Commit();
-                    return Ok(porudzbenica);
+                    return Ok(stavke);
                 }
                 catch (System.Exception)
                 {
@@ -287,6 +308,61 @@ namespace webkom.Controllers.api
         //     trans.Commit();
         //     return Ok(porudzbenica);
         // }
+
+        [HttpPost]
+        [Route("[Action]")]
+        public KendoResult<PorudzbenicaStavka> StavkePregledGrid([FromBody]KendoRequest kr) //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
+        {
+
+            var upit = _session.QueryOver<PorudzbenicaStavka>().Where(x => x.Obrisan == false);
+            var rowcount = _session.QueryOver<PorudzbenicaStavka>();
+            upit.Where(x => x.Obrisan == false);
+            TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+            //Dokument rez1 = null;
+            if (kr.Filter != null && kr.Filter.Filters.Any())
+            {
+                foreach (FilterDescription filter in kr.Filter.Filters)
+                {
+                    //upit.JoinAlias(x => x.Prijemnica, () => rez1, NHibernate.SqlCommand.JoinType.InnerJoin)
+                    //    .Where(x => x.Prijemnica.Id == int.Parse(filter.Value));
+                    //.AndRestrictionOn(() => rez1.Id == int.Parse(filter.Value));
+                    //rowcount.JoinAlias(x => x.Prijemnica, () => rez1, NHibernate.SqlCommand.JoinType.InnerJoin)
+                    //    .Where(x => x.Prijemnica.Id == int.Parse(filter.Value));
+                    //.AndRestrictionOn(() => rez1.Id == int.Parse(filter.Value));
+
+                    string prop = filter.Field;
+                    upit.And(Restrictions.Eq(prop, int.Parse(filter.Value)));
+                    rowcount.And(Restrictions.Eq(prop, int.Parse(filter.Value)));
+                }
+            }
+
+            upit.Skip(kr.Skip);
+            upit.Take(kr.Take);
+
+            if (kr.Sort.Any())
+            {
+                foreach (Sort sort in kr.Sort)
+                {
+                    string prop = textInfo.ToTitleCase(sort.Field);
+                    upit.UnderlyingCriteria.AddOrder(new Order(prop, sort.Dir.ToLower() == "asc"));
+                }
+            }
+
+            upit.Future<PorudzbenicaStavka>();
+
+
+            rowcount.Select(Projections.Count(Projections.Id()));
+
+            var redova = rowcount.FutureValue<int>().Value;
+
+            var lista = upit.List<PorudzbenicaStavka>();
+            var res = new KendoResult<PorudzbenicaStavka>
+            {
+                Data = lista,
+                Total = redova
+            };
+            return res;
+        }
     }
 }
 

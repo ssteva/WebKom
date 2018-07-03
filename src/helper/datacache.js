@@ -36,6 +36,18 @@ export class DataCache {
     });
     return promise;
   }
+  getKorisnik(id) {
+    var promise = new Promise((resolve, reject) => {
+        
+        this.repo.find('Korisnik', id)
+            .then(result => {
+                resolve(result);
+            })
+            .catch(err => reject(err));
+        
+    });
+    return promise;
+}
   getStatusiPork() {
     var promise = new Promise((resolve, reject) => {
 		if (!this.statusiPork) {

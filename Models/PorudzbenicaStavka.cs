@@ -30,7 +30,6 @@ namespace webkom.Models
         public virtual Ident Ident { get; set; }
         public virtual int Poruceno { get; set; }
         public virtual int Otprema { get; set; }
-        public virtual int Primljeno { get; set; }
         public virtual decimal Koleta { get; set; }
         public virtual string Jm { get; set; }
         public virtual int PoreskaStopa { get; set; }
@@ -42,7 +41,22 @@ namespace webkom.Models
         public virtual decimal CenaBezPdv { get; set; }
         public virtual decimal Cena { get; set; }
         public virtual decimal KonacnaCena { get; set; }
-        public virtual Subjekt Odeljenje {get;set;}
+        public virtual decimal Vrednost
+        {
+            get
+            {
+                try
+                {
+                    return Poruceno * KonacnaCena;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+            set { }
+        }
+        public virtual Subjekt Odeljenje { get; set; }
     }
 }
 

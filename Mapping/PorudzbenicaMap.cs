@@ -50,7 +50,7 @@ namespace webkom.Mapping
             HasMany(x => x.Stavke)
               .Inverse()
               .AsSet()
-              .Cascade.All();
+              .Cascade.None();
         }
     }
 }

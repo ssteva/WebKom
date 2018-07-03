@@ -1,41 +1,26 @@
-import {
-  Endpoint
-} from 'aurelia-api';
-import {
-  inject
-} from 'aurelia-framework';
-import {
-  AuthService
-} from 'aurelia-authentication';
-import {
-  DialogController,
-  DialogService
-} from 'aurelia-dialog';
-import {
-  DataCache
-} from 'helper/datacache';
-import {
-  Router
-} from 'aurelia-router';
-import {
-  Common
-} from 'helper/common';
-import {
-  computedFrom,
-  observable
-} from 'aurelia-framework';
+import {Endpoint} from 'aurelia-api';
+import {inject} from 'aurelia-framework';
+import {AuthService} from 'aurelia-authentication';
+import {DialogController,DialogService} from 'aurelia-dialog';
+import {DataCache} from 'helper/datacache';
+import {Router} from 'aurelia-router';
+import {Common} from 'helper/common';
+import {computedFrom,observable} from 'aurelia-framework';
 import 'kendo/js/kendo.combobox';
 import 'kendo/js/kendo.datepicker';
 import 'kendo/js/kendo.grid';
 import * as toastr from 'toastr';
-import {
-  EventAggregator
-} from 'aurelia-event-aggregator';
+import {EventAggregator} from 'aurelia-event-aggregator';
 import 'jquery.dataTables';
+import {activationStrategy} from 'aurelia-router';
 
 @inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator, Router)
 export class Porudzbenica {
-
+  determineActivationStrategy() {
+    return activationStrategy.replace; //replace the viewmodel with a new instance
+    // or activationStrategy.invokeLifecycle to invoke router lifecycle methods on the existing VM
+    // or activationStrategy.noChange to explicitly use the default behavior
+  }
   porudzbenica = null;
   porudzbenicastavka = null;
   lock = false;
@@ -53,7 +38,7 @@ export class Porudzbenica {
     this.eventAggregator = eventAggregator;
     let payload = this.authService.getTokenPayload();
     if (payload) {
-      this.korisnik = payload.unique_name;
+      this.korisnik = payload.Ime + " " + payload.Prezime;
       this.role = payload.role;
     }
     this.dsMestoIsporuke = new kendo.data.DataSource({
@@ -213,18 +198,34 @@ export class Porudzbenica {
       this.dc.getStatusiPork()
     ];
     //this.lock= false;
+    //console.log("activate");
     return Promise.all(promises)
       .then(res => {
         this.porudzbenica = res[0];
         this.porudzbenicastavkaprazna = res[1];
+        
+        if(this.porudzbenica.id>0){
+          this.dc.getKorisnik(this.porudzbenica.userCreated)
+            .then(resk=>this.korisnik = resk.ime + " " + resk.prezime);
+        }
+
+        //otvorena porudzbenioca
         if (!this.porudzbenica.status.zakljucaj) {
-          this.porudzbenica.stavke.forEach((element) => element.edit = true);
-          this.novaStavka(false);
+          this.porudzbenica.stavke.forEach((element) => {
+            element.edit = true;
+            element.odabraniident = element.ident.id;
+          });
+          if(this.porudzbenica.id > 0)
+            this.novaStavka(false);
           this.original = JSON.stringify(this.porudzbenica);
         }
+
+        //zakljucan status
         if (this.porudzbenica.status.zakljucaj) {
-          //this.porudzbenica.stavke.forEach((element) => element.edit = f);
-          //this.novaStavka(false);
+          this.porudzbenica.stavke.forEach((element) => {
+            element.edit = false;
+            element.odabraniident = element.ident.id;
+          });
           this.lock = true;
           this.original = JSON.stringify(this.porudzbenica);
         }
@@ -237,6 +238,7 @@ export class Porudzbenica {
       .catch(err => toastr.error(err.statusText));
   }
   afterAttached() {
+    //console.log("attached");
     //this.setGridDataSource(this.grid);
     // this.table =  $(this.tblstavke).DataTable({
     //   paging: false,
@@ -270,31 +272,31 @@ export class Porudzbenica {
     }
   }
   canDeactivate(){
-    if (this.porudzbenica.odeljenje) {
-      if (!this.porudzbenica.odeljenje.id) {
-        this.porudzbenica.odeljenje = null;
-      }
-    }
-    if (this.porudzbenica.skladiste) {
-      if (!this.porudzbenica.skladiste.id) {
-        this.porudzbenica.skladiste = null;
-      }
-    }
-    let ok = true;
-    this.porudzbenica.stavke.forEach((element, index) => {
-      if (element.odeljenje) {
-        if (!element.odeljenje.id) {
-          element.odeljenje = null;
-        }
-      }
-    });
-    if(this.dozvolinavigaciju && !this.porudzbenica.status.zakljucaj && (this.porudzbenica.id===0 || this.original !== JSON.stringify(this.porudzbenica)) ){
-      if (confirm("Da li želite da snimite unete podatke?")) {
-        return this.snimi(true);
-      }else{
-        return true;
-      }
-    }
+    // if (this.porudzbenica.odeljenje) {
+    //   if (!this.porudzbenica.odeljenje.id) {
+    //     this.porudzbenica.odeljenje = null;
+    //   }
+    // }
+    // if (this.porudzbenica.skladiste) {
+    //   if (!this.porudzbenica.skladiste.id) {
+    //     this.porudzbenica.skladiste = null;
+    //   }
+    // }
+    // let ok = true;
+    // this.porudzbenica.stavke.forEach((element, index) => {
+    //   if (element.odeljenje) {
+    //     if (!element.odeljenje.id) {
+    //       element.odeljenje = null;
+    //     }
+    //   }
+    // });
+    // if(this.dozvolinavigaciju && !this.porudzbenica.status.zakljucaj && (this.porudzbenica.id===0 || this.original !== JSON.stringify(this.porudzbenica)) ){
+    //   if (confirm("Da li želite da snimite unete podatke?")) {
+    //     return this.snimi(true);
+    //   }else{
+    //     return true;
+    //   }
+    // }
   }
   // setGridDataSource(g){
   //   if(this.porudzbenica){
@@ -313,12 +315,24 @@ export class Porudzbenica {
     this.cboDatum.enable(false);
     this.cboDatumVazenja.enable(false);
   }
+  redniBroj(){
+    var brojac = 0;
+    this.porudzbenica.stavke.forEach(x=>{
+      if (!x.obrisan && x.rbr > brojac){
+        brojac = x.rbr;
+      }
+    })
+    return brojac + 1;
+  }
   novaStavka(snimi) {
-    if (snimi) {
+
+    if(this.porudzbenica.stavke.length>0 && !this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident) return;
+    if (false) {
       this.snimiStavke().then(res => {
+        this.porudzbenica.stavke = res;
         this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
         this.porudzbenicastavka.edit = true;
-        this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
+        this.porudzbenicastavka.rbr = this.redniBroj(); //this.porudzbenica.stavke.length + 1;
         if (this.porudzbenica.odeljenje)
           this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
         this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1, this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
@@ -328,7 +342,7 @@ export class Porudzbenica {
     }else{
       this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
       this.porudzbenicastavka.edit = true;
-      this.porudzbenicastavka.rbr = this.porudzbenica.stavke.length + 1;
+      this.porudzbenicastavka.rbr = this.redniBroj() //this.porudzbenica.stavke.length + 1;
       if (this.porudzbenica.odeljenje)
         this.porudzbenicastavka.odeljenje = this.porudzbenica.odeljenje;
       this.kalkulacijaCene(this.porudzbenicastavka, this.porudzbenicastavka.rabat1, this.porudzbenicastavka.rabat2, this.porudzbenicastavka.rabat3)
@@ -411,11 +425,12 @@ export class Porudzbenica {
   onIdentSelect(e, obj) {
     let dataItem = e.sender.dataItem(e.item);
     if (dataItem) {
+      obj.stavka.ident = dataItem;
       obj.stavka.jm = dataItem.jm;
       obj.stavka.koleta = dataItem.koleta;
       obj.stavka.poreskaStopa = dataItem.poreskaStopa;
       obj.stavka.poreskaOznaka = dataItem.poreskaOznaka;
-      obj.stavka.ident.naziv = dataItem.naziv;
+      
       if (!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
 
       //if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka(true);
@@ -425,6 +440,7 @@ export class Porudzbenica {
           obj.stavka.cena = res;
           obj.stavka.konacnaCena = res;
           obj.stavka.vrednost = obj.stavka.konacnaCena * obj.stavka.poruceno;
+          
           this.novaStavka(true);
           //if(this.txtPoruceno) this.txtPoruceno.focus();
           let widget = kendo.widgetInstance($("#numPoruceno" + obj.stavka.rbr), kendo.ui);
@@ -545,24 +561,61 @@ export class Porudzbenica {
     $('[data-toggle="tooltip"]').tooltip('hide');
   }
 
-  obrisi(obj, e) {
-    let id = null;
-    if (obj.stavka.ident) {
-      if (obj.stavka.ident.id)
-        id = obj.stavka.ident.id;
-    }
+  obrisi(obj, indeks, e) {
 
-    if ((!id) && (this.porudzbenica.stavke.length === obj.stavka.rbr)) return;
-
-    var index = this.porudzbenica.stavke.map((x) => {
-      return x.rbr;
-    }).indexOf(obj.stavka.rbr);
-    if (confirm(`Da li želite da obrišete stavku ${index + 1}?`)) {
-      if (index !== -1 && obj.stavka.id === 0) {
-        this.porudzbenica.stavke.splice(index, 1);
-        this.porudzbenica.stavke.forEach((element, index) => element.rbr = index + 1);
+    if (confirm(`Da li želite da obrišete stavku ${obj.stavka.rbr}?`)) {
+      if(obj.stavka.id===0){
+        this.porudzbenica.stavke.splice(indeks, 1);
+        let brojac = 1;
+        this.porudzbenica.stavke.forEach((stavka)=>{
+          if(!stavka.obrisan){
+            stavka.rbr = brojac;
+            brojac++;
+          }
+        })
+      }
+      else{
+        //brisem stavku iz baze
+        this.repo.post('Porudzbenica/BrisiStavku?id=' + obj.stavka.id)
+        .then(res => {
+          this.porudzbenica.stavke.splice(indeks, 1);
+          let brojac = 1;
+          this.porudzbenica.stavke.forEach((stavka)=>{
+            if(!stavka.obrisan){
+              stavka.rbr = brojac;
+              brojac++;
+            }
+          })
+        })
+        .error(err => toastr.error(err.statusText));
       }
     }
+      //sredjujem redne brojeve
+
+    // let id = null;
+    // if (obj.stavka.ident) {
+    //   if (obj.stavka.ident.id)
+    //     id = obj.stavka.ident.id;
+    // }
+
+    //ako je poslednja stavka, ne brišemP
+    //if ((!id) && (this.porudzbenica.stavke.length === obj.stavka.rbr)) return;
+    // if (confirm(`Da li želite da obrišete stavku ${obj.stavka.rbr}?`)) {
+    //   obj.stavka.obrisan = true;
+
+    //   this.snimi();
+    // }
+
+
+    // var index = this.porudzbenica.stavke.map((x) => {
+    //   return x.rbr;
+    // }).indexOf(obj.stavka.rbr);
+    // if (confirm(`Da li želite da obrišete stavku ${index + 1}?`)) {
+    //   if (index !== -1 && obj.stavka.id === 0) {
+    //     this.porudzbenica.stavke.splice(index, 1);
+    //     this.porudzbenica.stavke.forEach((element, index) => element.rbr = index + 1);
+    //   }
+    // }
     $('[data-toggle="tooltip"]').tooltip('hide');
   }
 
@@ -593,11 +646,11 @@ export class Porudzbenica {
         }
       }
     });
-    return this.repo.post('Porudzbenica/SnimiStavke?id=' + this.porudzbenica.id, this.porudzbenica.stavke)
-    .then(res => {
-      toastr.success("Uspešno snimljeno");
-    })
-    .error(err => toastr.error(err.statusText));
+    return this.repo.post('Porudzbenica/SnimiStavke?id=' + this.porudzbenica.id, this.porudzbenica.stavke);
+    // .then(res => {
+    //   toastr.success("Uspešno snimljeno");
+    // })
+    // .error(err => toastr.error(err.statusText));
 
     
   }
@@ -649,37 +702,45 @@ export class Porudzbenica {
     }
 
     //brisem poslednju stavku
-    if (this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident) {
-      if (!this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident.id) {
-        this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
-      }
-    } else {
-      this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
-    }
+    // if (this.porudzbenica.stavke.length > 0 && this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident) {
+    //   if (!this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident.id) {
+    //     this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
+    //   }
+    // } else {
+    //   this.porudzbenica.stavke.splice(this.porudzbenica.stavke.length - 1, 1);
+    // }
 
 
 
-    if (confirm("Da li želite da snimite izmene?")) {
-      this.repo.post('Porudzbenica', this.porudzbenica)
-        .then(res => {
-          toastr.success("Uspešno snimljeno");
-          if(izlaz) return true;
-          if(res.status.oznaka === "AK"){
-            this.porudzbenica.stavke.forEach((element) => element.edit = true);
-          }
-          if(res.status.oznaka === "PT"){
-            this.porudzbenica.stavke.forEach((element) => element.edit = false);
-            this.zakljucaj();
-          }
-          this.dozvolinavigaciju = true;
-          this.router.navigateToRoute("porudzbenicakupaca", {
-            id: res.id
+    //if (confirm("Da li želite da snimite izmene?")) {
+    this.repo.post('Porudzbenica', this.porudzbenica)
+      .then(res => {
+        toastr.success("Uspešno snimljeno");
+        this.porudzbenica = res;
+        if(izlaz) return true;
+        if(!res.status.zakljucaj){
+          this.porudzbenica.stavke.forEach((element) => {
+            element.edit = true;
+            element.odabraniident = element.ident.id;
           });
+          this.novaStavka(false);
+        }else{
+          this.porudzbenica.stavke.forEach((element) => {
+            element.edit = false;
+            element.odabraniident = element.ident.id;
+          });
+          this.zakljucaj();
+        }
+        this.dozvolinavigaciju = true;
+        this.router.navigateToRoute("porudzbenicakupaca", {
+          id: res.id
+        });
 
-        })
-        .error(err => toastr.error(err.statusText));
-    }
+      })
+      .error(err => toastr.error(err.statusText));
+    //}
   }
+  
   // proba(){
   //   console.log(1);
   // }
@@ -705,6 +766,13 @@ export class DinaraValueConverter {
   toView(value) {
     if (!value) return "";
     return value.formatMoney(2, '.', ',');
+  }
+}
+export class FilterValueConverter {
+  toView(items) {
+      //if(search === "" || search === undefined) return items;
+
+      return items.filter((item) => !item.obrisan);
   }
 }
 

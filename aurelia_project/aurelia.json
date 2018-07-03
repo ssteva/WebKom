@@ -127,6 +127,7 @@
               "js/kendo.ui.core.js",
               "js/kendo.data.js",
               "js/kendo.grid.js",
+              "js/kendo.tabstrip.js",
               "css/web/kendo.common.min.css",
               "css/web/kendo.bootstrap-v4.min.css",
               "css/web/kendo.default.min.css",
@@ -148,6 +149,7 @@
               "contextmenu/*.{js,html}",
               "numerictextbox/*.{js,html}",
               "dropdownlist/*.{js,html}",
+              "tabstrip/*.{js,html}",
               "grid/*.{js,html}"
             ]
           },

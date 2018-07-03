@@ -23,7 +23,6 @@ namespace webkom.Mapping
             Map(x => x.Rbr);
             Map(x => x.Poruceno);
             Map(x => x.Otprema);
-            Map(x => x.Primljeno);
             Map(x => x.Jm).CustomSqlType("varchar(3)");
             Map(x => x.Koleta).CustomSqlType("decimal(19,6)");
             Map(x => x.PoreskaStopa);
@@ -36,8 +35,8 @@ namespace webkom.Mapping
             Map(x => x.Cena).CustomSqlType("decimal(12,2)");
             Map(x => x.KonacnaCena).CustomSqlType("decimal(12,2)");
             References(x => x.Porudzbenica).Column("PorudzbenicaId").Cascade.None();
-            References(x => x.Ident).Column("IdentId").Cascade.None().Not.Update();
-            References(x => x.Odeljenje).Column("OdeljenjeId").Cascade.None().Not.Update();
+            References(x => x.Ident).Column("IdentId").Cascade.None();
+            References(x => x.Odeljenje).Column("OdeljenjeId").Cascade.None();
         }
     }
 }

@@ -6,6 +6,7 @@
     k-filterable.bind="common.filterobj" 
     k-sortable.bind="true" 
     k-on-filter-menu-init.delegate="common.filterMenu($event.detail)"
+    k-on-detail-init.delegate="detailInit($event.detail)"
     style="width: 90%">
     <ak-grid-toolbar>
       <ak-template>
@@ -30,16 +31,16 @@
     <!--<div style="width: 60vw;"></div>-->
     <ak-template for="detailTemplate">
       <div class="tabstrip">
-        <ul>
-          <li class="k-state-active">
-            Stavke porudžbenice
-          </li>
-        </ul>
-        <div>
-          <div class="stavke"></div>
-        </div>
+          <ul>
+              <li class="k-state-active">
+                  Stavke porudžbenice
+              </li>
+          </ul>
+          <div>
+              <div class="stavke"></div>
+          </div>
       </div>
-    </ak-template>
+  </ak-template>
   </ak-grid>
 </template>
 
