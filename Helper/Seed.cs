@@ -54,6 +54,7 @@ namespace webkom.Helper
             try
             {
                 var query = _session.CreateSQLQuery(procedure);
+                query.SetTimeout(240);
                 query.ExecuteUpdate();
             }
             catch (Exception ex)

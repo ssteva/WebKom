@@ -19,7 +19,8 @@ namespace webkom.Mapping
     protected override void MapSubClass()
     {
       Table("tNacinPlacanja");
-      Id(x => x.Id).UnsavedValue(0).GeneratedBy.Assigned();
+      Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
+      Map(x=>x.Sifra);
       Map(x=>x.Naziv);
     }
   }

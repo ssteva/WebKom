@@ -55,7 +55,7 @@ namespace webkom
             var init = new Seed(services.GetRequiredService<KorisnikManager>(),  services.GetRequiredService<ISession>(), 
                                 services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
             
-            init.SeedDatabase();
+            //init.SeedDatabase();
           }
           catch (Exception ex)
           {
