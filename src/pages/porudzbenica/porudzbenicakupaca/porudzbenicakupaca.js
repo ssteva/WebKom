@@ -370,6 +370,9 @@ export class Porudzbenica {
     }
     if (!this.porudzbenica.kupac || !this.porudzbenica.kupac.id) {
       if (dataItem && dataItem.platilac) {
+        let podaci = this.cboKupac.dataSource.data().filter(x=>x.id == dataItem.platilac.id);
+        if(podaci.length===0) 
+          this.cboKupac.dataSource.add(dataItem.platilac);
         this.porudzbenica.kupac = dataItem.platilac;
       }
     }
@@ -383,6 +386,9 @@ export class Porudzbenica {
     let dataItem = this.cboKupac.dataItem(e.item);
     if (dataItem && dataItem.id) {
       this.porudzbenica.danaZaPlacanje = dataItem.danaZaPlacanje;
+      let podaci = this.cboMestoIsporuke.dataSource.data().filter(x=>x.id == dataItem.id);
+      if(podaci.length===0) 
+        this.cboMestoIsporuke.dataSource.add(dataItem);
       this.porudzbenica.mestoIsporuke = dataItem;
     } else {
       this.porudzbenica.kupac = null;
