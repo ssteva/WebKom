@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Security;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using webkom.Data;
 using webkom.Models;
 
 

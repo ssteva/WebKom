@@ -22,7 +22,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NHibernate;
-using webkom.Data;
 using webkom.Helper;
 //using Microsoft.IdentityModel.Tokens;
 using webkom.Models;

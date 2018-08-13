@@ -32,7 +32,7 @@ namespace webkom.Helper
 {
 
   [Serializable]
-  public class AuditInterceptor : EmptyInterceptorWithHub<AppHub>
+  public class AuditInterceptor : EmptyInterceptor  //EmptyInterceptorWithHub<AppHub>
   {
     private readonly ISession _session;
     private readonly ILogger _logger;

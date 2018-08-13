@@ -1,30 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.FileExtensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using Serilog;
 using Serilog.Events;
-using System.Data.Common;
-using System.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
 using webkom.Helper;
-using Microsoft.AspNetCore.Identity;
-using webkom.Data;
-using NHibernate;
 
 namespace webkom
 {
   public class Program
   {
     public static IConfigurationRoot Configuration { get; set; }
-    public static int Main(string[] args)
+    public static void Main(string[] args)
     {
-      
       var builder = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("appsettings.json");
@@ -32,7 +29,7 @@ namespace webkom
       Log.Logger = new LoggerConfiguration()
         .MinimumLevel.Debug()
         .Destructure
-          .ByTransforming<SqlParameter>(r=>new { ParameterName = r.ParameterName, Value = r.Value})
+          .ByTransforming<SqlParameter>(r => new { r.ParameterName, r.Value })
         .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
         .Enrich.FromLogContext()
         .WriteTo.MSSqlServer(Configuration.GetConnectionString("DefaultConnection"), "Logs")
@@ -41,7 +38,7 @@ namespace webkom
       try
       {
         Log.Information("Starting web host {0}", 1);
-        var host = BuildWebHost(args);
+        var host = CreateWebHostBuilder(args).Build();
         using (var scope = host.Services.CreateScope())
         {
           var services = scope.ServiceProvider;
@@ -49,13 +46,8 @@ namespace webkom
           try
           {
             //EnsureDataStorageIsReady(services);
-            //IdentityInicijalizacija.SeedData();
-            //IdentityInicijalizacija.SeedMenu();
-            //var init = new Seed(services.GetRequiredService<UserManager<ApplicationUser>>(), services.GetRequiredService<RoleManager<IdentityRole>>(), services.GetRequiredService<ISession>());
-            var init = new Seed(services.GetRequiredService<KorisnikManager>(),  services.GetRequiredService<ISession>(), 
+            var init = new Seed(services.GetRequiredService<KorisnikManager>(), services.GetRequiredService<ISession>(),
                                 services.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
-            
-            //init.SeedDatabase();
           }
           catch (Exception ex)
           {
@@ -64,12 +56,12 @@ namespace webkom
           }
         }
         host.Run();
-        return 0;
+        return;
       }
       catch (Exception ex)
       {
         Log.Fatal(ex, "Host terminated unexpectedly");
-        return 1;
+        return;
       }
       finally
       {
@@ -77,11 +69,9 @@ namespace webkom
       }
     }
 
-    public static IWebHost BuildWebHost(string[] args) =>
+    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
         WebHost.CreateDefaultBuilder(args)
-            //.ConfigureServices(services => services.AddAutofac())
             .UseSerilog()
-            .UseStartup<Startup>()
-            .Build();
+            .UseStartup<Startup>();
   }
 }

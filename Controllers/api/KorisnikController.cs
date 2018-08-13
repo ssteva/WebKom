@@ -18,8 +18,6 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using NHibernate.Criterion;
-
-using webkom.Data;
 using webkom.Models;
 using webkom.Helper;
 
