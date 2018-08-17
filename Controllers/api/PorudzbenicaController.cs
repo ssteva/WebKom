@@ -19,7 +19,7 @@ using System.Globalization;
 namespace webkom.Controllers.api
 {
     [Route("api/[controller]")]
-    [Authorize("Bearer")]
+    //[Authorize("Bearer")]
     public class PorudzbenicaController : Controller
     {
         private readonly ISession _session;

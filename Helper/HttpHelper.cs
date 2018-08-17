@@ -9,11 +9,11 @@ namespace webkom.Helper
 {
   public static class HttpHelper
   {
-    private static IHttpContextAccessor HttpContextAccessor;
+    private static IHttpContextAccessor _context;
     private static ILoggerFactory _loggerFactory;
     public static void Configure(IHttpContextAccessor httpContextAccessor, ILoggerFactory loggerFactory)
     {
-      HttpContextAccessor = httpContextAccessor;
+      _context = httpContextAccessor;
       _loggerFactory = loggerFactory;
     }
 
@@ -29,7 +29,7 @@ namespace webkom.Helper
     {
       get
       {
-        return HttpContextAccessor.HttpContext;
+        return HttpHelper.HttpContext;
       }
     }
   }

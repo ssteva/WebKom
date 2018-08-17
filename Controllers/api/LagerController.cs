@@ -53,11 +53,11 @@ namespace webkom.Controllers.api
             query.SetParameter("skladiste", null, NHibernateUtil.String);
             query.SetParameter("ident", null, NHibernateUtil.String);
 
-            rows.SetParameter("count", false, NHibernateUtil.Boolean);
-            rows.SetParameter("take", kr.Take, NHibernateUtil.Int32);
-            rows.SetParameter("skip", kr.Skip, NHibernateUtil.Int32);
-            rows.SetParameter("sortfield", "Ident", NHibernateUtil.String);
-            rows.SetParameter("sortdir", "ASC", NHibernateUtil.String);
+            rows.SetParameter("count", true, NHibernateUtil.Boolean);
+            rows.SetParameter("take", null, NHibernateUtil.Int32);
+            rows.SetParameter("skip", null, NHibernateUtil.Int32);
+            rows.SetParameter("sortfield", null, NHibernateUtil.String);
+            rows.SetParameter("sortdir", null, NHibernateUtil.String);
             rows.SetParameter("skladiste", null, NHibernateUtil.String);
             rows.SetParameter("ident", null, NHibernateUtil.String);
 

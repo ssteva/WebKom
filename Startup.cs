@@ -30,9 +30,15 @@ namespace webkom
     //        private Microsoft.IdentityModel.Tokens.RsaSecurityKey _key;
     private TokenAuthOptions _tokenOptions;
     private SymmetricSecurityKey _signingKey;
-    public Startup(IConfiguration configuration)
+    private readonly IHostingEnvironment _env;
+    private readonly IConfiguration _config;
+    private readonly ILoggerFactory _loggerFactory;
+
+    public Startup(IHostingEnvironment env, IConfiguration config, ILoggerFactory loggerFactory)
     {
-      Configuration = configuration;
+        _env = env;
+        _config = config;
+        _loggerFactory = loggerFactory;
     }
 
     public IConfiguration Configuration { get; }
@@ -53,12 +59,12 @@ namespace webkom
       var plainTextSecurityKey = "(Ne)tajnoviti tekst";
       _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(plainTextSecurityKey));
 
-      NHibernateHelper.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
+      NHibernateHelper.ConnectionString = _config.GetConnectionString("DefaultConnection");
 
-      services.AddSingleton(Configuration.GetSection("webKomKonfiguracija").Get<WebKomKonfiguracija>());
+      services.AddSingleton(_config.GetSection("webKomKonfiguracija").Get<WebKomKonfiguracija>());
 
-      var minutaToken = Configuration.GetSection("webKomKonfiguracija:minutaToken");
-      var minutaRefreshToken = Configuration.GetSection("webKomKonfiguracija:minutaRefreshToken");
+      var minutaToken = _config.GetSection("webKomKonfiguracija:minutaToken");
+      var minutaRefreshToken = _config.GetSection("webKomKonfiguracija:minutaRefreshToken");
       _tokenOptions = new TokenAuthOptions()
       {
         Audience = TokenAudience,
@@ -112,9 +118,10 @@ namespace webkom
 
       services.AddSingleton(factory =>
       {
+        HttpHelper.Configure(factory.GetRequiredService<IHttpContextAccessor>(), factory.GetRequiredService<ILoggerFactory>());
         var config = FluentNHibernate.Cfg.Fluently.Configure()
           .Database(FluentNHibernate.Cfg.Db.MsSqlConfiguration.MsSql2012.Driver<LoggerSqlClientDriver>()
-          .ConnectionString(Configuration.GetConnectionString("DefaultConnection")).ShowSql)
+          .ConnectionString(_config.GetConnectionString("DefaultConnection")).ShowSql)
           .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Entitet>()
           .Conventions.Add<CustomForeignKeyConvention>())
           .ExposeConfiguration(cfg => cfg.SetProperty(NHibernate.Cfg.Environment.CurrentSessionContextClass, "web"))
@@ -163,9 +170,9 @@ namespace webkom
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    public void Configure(IApplicationBuilder app)
     {
-      if (env.IsDevelopment())
+      if (_env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
       }
@@ -179,8 +186,8 @@ namespace webkom
       
       app.UseAuthentication();
       app.UseStaticFiles();
-      HttpHelper.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>(), app.ApplicationServices.GetRequiredService<ILoggerFactory>());
-      if (env.IsDevelopment())
+      //HttpHelper.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>(), app.ApplicationServices.GetRequiredService<ILoggerFactory>());
+      if (_env.IsDevelopment())
       {
 
       }

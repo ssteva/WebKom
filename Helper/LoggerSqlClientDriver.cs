@@ -41,7 +41,7 @@ namespace webkom.Helper
       //   _logger.LogInformation(parameter.ParameterName + " " + parameter.Value);
       // }
       base.AdjustCommand(command);
-      base.AdjustCommand(command);
+      //base.AdjustCommand(command);
     }
 
 
