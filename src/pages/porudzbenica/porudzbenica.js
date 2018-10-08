@@ -1,20 +1,43 @@
-import {Endpoint} from 'aurelia-api';
-import {inject} from 'aurelia-framework';
-import {AuthService} from 'aurelia-authentication';
-import {DialogController,DialogService} from 'aurelia-dialog';
-import {DataCache} from 'helper/datacache';
-import {Router} from 'aurelia-router';
-import {Common} from 'helper/common';
-import {computedFrom,observable} from 'aurelia-framework';
+import {
+  Endpoint
+} from 'aurelia-api';
+import {
+  inject,
+  BindingEngine
+} from 'aurelia-framework';
+import {
+  AuthService
+} from 'aurelia-authentication';
+import {
+  DialogController,
+  DialogService
+} from 'aurelia-dialog';
+import {
+  DataCache
+} from 'helper/datacache';
+import {
+  Router
+} from 'aurelia-router';
+import {
+  Common
+} from 'helper/common';
+import {
+  computedFrom,
+  observable
+} from 'aurelia-framework';
 import 'kendo/js/kendo.combobox';
 import 'kendo/js/kendo.datepicker';
 import 'kendo/js/kendo.grid';
 import * as toastr from 'toastr';
-import {EventAggregator} from 'aurelia-event-aggregator';
+import {
+  EventAggregator
+} from 'aurelia-event-aggregator';
 import 'jquery.dataTables';
-import {activationStrategy} from 'aurelia-router';
+import {
+  activationStrategy
+} from 'aurelia-router';
 
-@inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator, Router)
+@inject(AuthService, DataCache, Common, DialogService, Endpoint.of(), EventAggregator, Router, BindingEngine)
 export class Porudzbenica {
   determineActivationStrategy() {
     return activationStrategy.replace; //replace the viewmodel with a new instance
@@ -27,10 +50,11 @@ export class Porudzbenica {
   dozvolinavigaciju = false;
   // skladista = [];
   // odeljenja = [];
-  constructor(authService, dc, common, dialogService, repo, eventAggregator, router) {
+  constructor(authService, dc, common, dialogService, repo, eventAggregator, router, bindingEngine) {
     this.authService = authService;
     this.repo = repo;
     this.dialogService = dialogService;
+    this.bindingEngine = bindingEngine;
     this.dc = dc;
     this.common = common;
     this.router = router;
@@ -193,9 +217,10 @@ export class Porudzbenica {
 
   activate(params, routeData) {
     var promises = [
-      this.repo.findOne("Porudzbenica/?id=" + params.id + "&vrsta=PORK"),
-      this.repo.findOne("Porudzbenica/PorudzbenicaStavka?id=0&vrsta=PORK"),
-      this.dc.getStatusiPork()
+      this.repo.findOne("Porudzbenica/?id=" + params.id + "&vrsta=" + params.tip),
+      this.repo.findOne("Porudzbenica/PorudzbenicaStavka?id=0&vrsta=" + params.tip),
+      this.dc.getStatusi(params.tip),
+      this.dc.getPorudzbenicaTip()
     ];
     //this.lock= false;
     //console.log("activate");
@@ -203,10 +228,10 @@ export class Porudzbenica {
       .then(res => {
         this.porudzbenica = res[0];
         this.porudzbenicastavkaprazna = res[1];
-        
-        if(this.porudzbenica.id>0){
+
+        if (this.porudzbenica.id > 0) {
           this.dc.getKorisnik(this.porudzbenica.userCreated)
-            .then(resk=>this.korisnik = resk.ime + " " + resk.prezime);
+            .then(resk => this.korisnik = resk.ime + " " + resk.prezime);
         }
 
         //otvorena porudzbenioca
@@ -215,7 +240,7 @@ export class Porudzbenica {
             element.edit = true;
             element.odabraniident = element.ident.id;
           });
-          if(this.porudzbenica.id > 0)
+          if (this.porudzbenica.id > 0)
             this.novaStavka(false);
           this.original = JSON.stringify(this.porudzbenica);
         }
@@ -230,12 +255,62 @@ export class Porudzbenica {
           this.original = JSON.stringify(this.porudzbenica);
         }
         this.statusi = res[2];
-        
-        // this.skladista = res[2];
-        // this.odeljenja = res[3];
+        this.tipovi = res[3];
 
+        let tip = this.tipovi.find(e=>e.tip === this.porudzbenica.tip);
+        let pomoc = this.porudzbenica.broj === 0 ? ', novi dokument' : ', broj: ' + this.porudzbenica.broj;
+        this.naslov = tip.tip  + ' - ' +  tip.naziv + pomoc;
+        //kalkulacija svega
+        this.porudzbenica.stavke.forEach((element) => {
+          this.kalkulacijaCene(element, element.rabat1, element.rabat2, element.rabat3);
+          this.kalkulacijaRabata(element, element.rabat1, element.rabat2, element.rabat3);
+        });
+        this.sume();
+
+        this.subscription1 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
+          this.komada = this.porudzbenica.stavke.reduce((sum, stavka) => sum + stavka.poruceno, 0);
+        });
+
+        this.subscription2 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
+          this.ukupno = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.poruceno * stavka.cena), 0);
+          this.popust = Math.abs(this.ukupno - this.vrednost);
+        });
+
+        this.subscription3 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
+          this.popustprocenat = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.rabat), 0);
+          this.popust = Math.abs(this.ukupno - this.vrednost);
+        });
+
+        this.subscription4 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
+          this.vrednost = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.vrednost), 0);
+        });
+
+        this.subscription4 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
+          this.placanje = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.placanje), 0);
+        });
+
+        this.subscription5 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
+          this.pdv = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.pdv), 0);
+        });
       })
       .catch(err => toastr.error(err.statusText));
+  }
+  sume() {
+    this.komada = this.porudzbenica.stavke.reduce((sum, stavka) => sum + stavka.poruceno, 0);
+    this.ukupno = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.poruceno * stavka.cena), 0);
+    this.popustprocenat = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.rabat), 0);
+    this.vrednost = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.vrednost), 0);
+    this.placanje = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.placanje), 0);
+    this.pdv = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.pdv), 0);
+    this.popust = Math.abs(this.vrednost - this.ukupno);
+  }
+
+  deactivate() {
+    this.subscription1.dispose();
+    this.subscription2.dispose();
+    this.subscription3.dispose();
+    this.subscription4.dispose();
+    this.subscription5.dispose();
   }
   afterAttached() {
     //console.log("attached");
@@ -267,11 +342,11 @@ export class Porudzbenica {
       this.loading = payload;
     });
 
-    if(this.lock){
-      this.zakljucaj();
+    if (this.lock) {
+      this.zakljucaj(false);
     }
   }
-  canDeactivate(){
+  canDeactivate() {
     // if (this.porudzbenica.odeljenje) {
     //   if (!this.porudzbenica.odeljenje.id) {
     //     this.porudzbenica.odeljenje = null;
@@ -307,18 +382,18 @@ export class Porudzbenica {
   //     g.setDataSource(this.dsGrid);
   //   }
   // }
-  zakljucaj(){
-    this.cboKupac.enable(false);
-    this.cboMestoIsporuke.enable(false);
-    this.cboOdeljenje.enable(false);
-    this.cboSkladiste.enable(false);
-    this.cboDatum.enable(false);
-    this.cboDatumVazenja.enable(false);
+  zakljucaj(status) {
+    this.cboKupac.enable(status);
+    this.cboMestoIsporuke.enable(status);
+    this.cboOdeljenje.enable(status);
+    this.cboSkladiste.enable(status);
+    this.cboDatum.enable(status);
+    this.cboDatumVazenja.enable(status);
   }
-  redniBroj(){
+  redniBroj() {
     var brojac = 0;
-    this.porudzbenica.stavke.forEach(x=>{
-      if (!x.obrisan && x.rbr > brojac){
+    this.porudzbenica.stavke.forEach(x => {
+      if (!x.obrisan && x.rbr > brojac) {
         brojac = x.rbr;
       }
     })
@@ -326,7 +401,7 @@ export class Porudzbenica {
   }
   novaStavka(snimi) {
 
-    if(this.porudzbenica.stavke.length>0 && !this.porudzbenica.stavke[this.porudzbenica.stavke.length-1].ident) return;
+    if (this.porudzbenica.stavke.length > 0 && !this.porudzbenica.stavke[this.porudzbenica.stavke.length - 1].ident) return;
     if (false) {
       this.snimiStavke().then(res => {
         this.porudzbenica.stavke = res;
@@ -339,7 +414,7 @@ export class Porudzbenica {
         this.porudzbenica.stavke.push(this.porudzbenicastavka);
         $('[data-toggle="tooltip"]').tooltip();
       })
-    }else{
+    } else {
       this.porudzbenicastavka = JSON.parse(JSON.stringify(this.porudzbenicastavkaprazna));
       this.porudzbenicastavka.edit = true;
       this.porudzbenicastavka.rbr = this.redniBroj() //this.porudzbenica.stavke.length + 1;
@@ -370,8 +445,8 @@ export class Porudzbenica {
     }
     if (!this.porudzbenica.kupac || !this.porudzbenica.kupac.id) {
       if (dataItem && dataItem.platilac) {
-        let podaci = this.cboKupac.dataSource.data().filter(x=>x.id == dataItem.platilac.id);
-        if(podaci.length===0) 
+        let podaci = this.cboKupac.dataSource.data().filter(x => x.id == dataItem.platilac.id);
+        if (podaci.length === 0)
           this.cboKupac.dataSource.add(dataItem.platilac);
         this.porudzbenica.kupac = dataItem.platilac;
       }
@@ -386,8 +461,8 @@ export class Porudzbenica {
     let dataItem = this.cboKupac.dataItem(e.item);
     if (dataItem && dataItem.id) {
       this.porudzbenica.danaZaPlacanje = dataItem.danaZaPlacanje;
-      let podaci = this.cboMestoIsporuke.dataSource.data().filter(x=>x.id == dataItem.id);
-      if(podaci.length===0) 
+      let podaci = this.cboMestoIsporuke.dataSource.data().filter(x => x.id == dataItem.id);
+      if (podaci.length === 0)
         this.cboMestoIsporuke.dataSource.add(dataItem);
       this.porudzbenica.mestoIsporuke = dataItem;
     } else {
@@ -436,7 +511,7 @@ export class Porudzbenica {
       obj.stavka.koleta = dataItem.koleta;
       obj.stavka.poreskaStopa = dataItem.poreskaStopa;
       obj.stavka.poreskaOznaka = dataItem.poreskaOznaka;
-      
+
       if (!obj.stavka.odeljenje && !obj.stavka.odeljenje.id && this.porudzbenica.odeljenje.id) obj.stavka.odeljenje = this.porudzbenica.odeljenje;
 
       //if (obj.stavka.rbr === this.porudzbenica.stavke.length) this.novaStavka(true);
@@ -446,7 +521,7 @@ export class Porudzbenica {
           obj.stavka.cena = res;
           obj.stavka.konacnaCena = res;
           obj.stavka.vrednost = obj.stavka.konacnaCena * obj.stavka.poruceno;
-          
+
           this.novaStavka(true);
           //if(this.txtPoruceno) this.txtPoruceno.focus();
           let widget = kendo.widgetInstance($("#numPoruceno" + obj.stavka.rbr), kendo.ui);
@@ -483,16 +558,22 @@ export class Porudzbenica {
     }
     this.kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3);
     this.kalkulacijaRabata(porudzbenicastavka, rabat1, rabat2, rabat3);
+    this.sume();
   }
   onPorucenoChange(obj, e) {
     let porudzbenicastavka = obj.stavka;
     let kolicina = e.sender.value();
     porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * kolicina;
+    this.sume();
   }
   onSelectStatus(e) {
     let dataItem = this.cboStatus.dataItem(e.item);
-    if (dataItem)
+    if (dataItem) {
       this.porudzbenica.status = dataItem;
+      if (this.porudzbenica.status.zakljucaj) {
+
+      }
+    }
   }
   kalkulacijaCene(porudzbenicastavka, rabat1, rabat2, rabat3) {
     try {
@@ -570,33 +651,32 @@ export class Porudzbenica {
   obrisi(obj, indeks, e) {
 
     if (confirm(`Da li želite da obrišete stavku ${obj.stavka.rbr}?`)) {
-      if(obj.stavka.id===0){
+      if (obj.stavka.id === 0) {
         this.porudzbenica.stavke.splice(indeks, 1);
         let brojac = 1;
-        this.porudzbenica.stavke.forEach((stavka)=>{
-          if(!stavka.obrisan){
+        this.porudzbenica.stavke.forEach((stavka) => {
+          if (!stavka.obrisan) {
             stavka.rbr = brojac;
             brojac++;
           }
         })
-      }
-      else{
+      } else {
         //brisem stavku iz baze
         this.repo.post('Porudzbenica/BrisiStavku?id=' + obj.stavka.id)
-        .then(res => {
-          this.porudzbenica.stavke.splice(indeks, 1);
-          let brojac = 1;
-          this.porudzbenica.stavke.forEach((stavka)=>{
-            if(!stavka.obrisan){
-              stavka.rbr = brojac;
-              brojac++;
-            }
+          .then(res => {
+            this.porudzbenica.stavke.splice(indeks, 1);
+            let brojac = 1;
+            this.porudzbenica.stavke.forEach((stavka) => {
+              if (!stavka.obrisan) {
+                stavka.rbr = brojac;
+                brojac++;
+              }
+            })
           })
-        })
-        .error(err => toastr.error(err.statusText));
+          .error(err => toastr.error(err.statusText));
       }
     }
-      //sredjujem redne brojeve
+    //sredjujem redne brojeve
 
     // let id = null;
     // if (obj.stavka.ident) {
@@ -658,7 +738,7 @@ export class Porudzbenica {
     // })
     // .error(err => toastr.error(err.statusText));
 
-    
+
   }
   snimi(izlaz) {
     // if (this.porudzbenica.stavke.length === 1 && (!this.porudzbenica.stavke[0].ident && !(this.porudzbenica.stavke[0].ident !== null && !this.porudzbenica.stavke[0].ident.id))) {
@@ -723,30 +803,31 @@ export class Porudzbenica {
       .then(res => {
         toastr.success("Uspešno snimljeno");
         this.porudzbenica = res;
-        if(izlaz) return true;
-        if(!res.status.zakljucaj){
+        if (izlaz) return true;
+        if (!res.status.zakljucaj) {
           this.porudzbenica.stavke.forEach((element) => {
             element.edit = true;
             element.odabraniident = element.ident.id;
           });
           this.novaStavka(false);
-        }else{
+          this.zakljucaj(true);
+        } else {
           this.porudzbenica.stavke.forEach((element) => {
             element.edit = false;
             element.odabraniident = element.ident.id;
           });
-          this.zakljucaj();
+          this.zakljucaj(false);
         }
         this.dozvolinavigaciju = true;
-        this.router.navigateToRoute("porudzbenicakupaca", {
-          id: res.id
+        this.router.navigateToRoute("porudzbenica", {
+          tip: res.tip, id: res.id
         });
 
       })
       .error(err => toastr.error(err.statusText));
     //}
   }
-  
+
   // proba(){
   //   console.log(1);
   // }
@@ -774,11 +855,16 @@ export class DinaraValueConverter {
     return value.formatMoney(2, '.', ',');
   }
 }
-export class FilterValueConverter {
-  toView(items) {
-      //if(search === "" || search === undefined) return items;
-
-      return items.filter((item) => !item.obrisan);
+export class ProcenatValueConverter {
+  toView(value) {
+    if (!value) return "";
+    return value.formatMoney(2, '.', ',');
   }
 }
+export class FilterValueConverter {
+  toView(items) {
+    //if(search === "" || search === undefined) return items;
 
+    return items.filter((item) => !item.obrisan);
+  }
+}

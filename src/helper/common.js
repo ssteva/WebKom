@@ -1,8 +1,13 @@
-﻿//import {inject} from 'aurelia-framework'
-//import {Endpoint} from 'aurelia-api';
+﻿import {inject} from 'aurelia-framework'
+import {Endpoint} from 'aurelia-api';
 //import {EntityManager} from 'aurelia-orm';
-//@inject(Endpoint.of())
+@inject(Endpoint.of())
 export class Common {
+
+  constructor(repo){
+    this.repo = repo;
+  }
+
   roles = ["Komercijalista", "Supervizor", "Administrator"];
   filterMenu(e){
     //e.sender.dataSource.options.schema.model.fields[e.field].type == "date"
@@ -67,5 +72,90 @@ export class Common {
         contains: "Sadrže"
       }
     }
+  };
+  dsMestoIsporuke = new kendo.data.DataSource({
+    pageSize: 10,
+    batch: false,
+    transport: {
+      read: (o) => {
+        let filter = "";
+        if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
+          filter = o.data.filter.filters[0].value;
+        }
+        this.repo.find('Subjekat/ListaKupacaComboSp?filter=' + filter + "&id=")
+          .then(result => {
+            o.success(result);
+          })
+          .catch(err => {
+            console.log(err.statusText);
+          });
+
+      }
+    },
+    serverPaging: true,
+    serverSorting: true,
+    serverFiltering: true,
+  });
+  dsKupac = new kendo.data.DataSource({
+    pageSize: 10,
+    batch: false,
+    transport: {
+      read: (o) => {
+        let filter = "";
+        if (o.data.filter && o.data.filter.filters && o.data.filter.filters.length > 0) {
+          filter = o.data.filter.filters[0].value;
+        }
+        this.repo.find('Subjekat/ListaKupacaComboSp?filter=' + filter)
+          .then(result => {
+            o.success(result);
+          })
+          .catch(err => {
+            console.log(err.statusText);
+          });
+      }
+    },
+    serverPaging: true,
+    serverSorting: true,
+    serverFiltering: true,
+  });
+  mestoIsporukeFilter =
+  {
+      extra: false,
+      ui: (element) => {
+          element.kendoComboBox({
+              dataTextField: "sifra",
+              dataValueField: "id",
+              filter: "contains",
+              dataSource: this.dsKupac
+          });
+      },
+      operators: {
+          string: {
+              contains: "Sadrže"
+      },
+          number: {
+              eq: "je jednak"
+          }
+      }
+  };
+  kupacFilter =
+  {
+      extra: false,
+      ui: (element) => {
+          element.kendoComboBox({
+              dataTextField: "sifra",
+              dataValueField: "id",
+              filter: "contains",
+              dataSource: this.dsKupac
+          });
+      },
+      operators: {
+          string: {
+              contains: "Sadrže"
+      },
+          number: {
+              eq: "je jednak"
+          }
+      }
   };
 }

@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 using NHibernate;
 using System.Security;
 using webkom.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace webkom.Helper
 {
   public class KorisnikManager
   {
-    private readonly ISession _session;
-
-    public KorisnikManager(ISession session)
+    private readonly NHibernate.ISession _session;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public KorisnikManager(NHibernate.ISession session, IHttpContextAccessor httpContextAccessor)
     {
       _session = session;
+      _httpContextAccessor = httpContextAccessor;
     }
     public Korisnik KorisnikPostoji(string korisnickoIme)
     {
@@ -35,7 +37,10 @@ namespace webkom.Helper
       query.SetParameter("naziv", korisnik.Naziv, NHibernateUtil.String);
       query.SetParameter("aktivan", korisnik.Aktivan, NHibernateUtil.Boolean);
       query.SetParameter("uloga", korisnik.Uloga, NHibernateUtil.String);
-      query.SetParameter("azukor", HttpHelper.HttpContext?.User?.Identity?.Name ?? "admin", NHibernateUtil.String);
+      if (_httpContextAccessor.HttpContext != null){
+        query.SetParameter("azukor", _httpContextAccessor.HttpContext.User.Identity.Name, NHibernateUtil.String);
+      }
+      query.SetParameter("azukor", null, NHibernateUtil.String);
       return query.UniqueResult<bool>();
       
     }

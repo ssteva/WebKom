@@ -1,6 +1,8 @@
 <template>
-  <require from="./porudzbenicekupaca.css"></require>
-  Proba
+  <require from="./porudzbenice.css"></require>
+  <br>
+  <h4>Prelged porudžbenica</h4>
+  <br>
   <ak-grid id="grid" k-widget.bind="grid" k-data-source.bind="datasource" 
     k-pageable.bind="common.pageable" 
     k-filterable.bind="common.filterobj" 
@@ -10,16 +12,25 @@
     style="width: 90%">
     <ak-grid-toolbar>
       <ak-template>
-  
+        <label class="opcija" repeat.for="tip of tipovi">
+          <input type="radio" name="group2"
+                 model.bind="tip" 
+                 matcher.bind="tipMatcher" 
+                 click.delegate="tipclick($this, $event)"
+                 checked.bind="odabranitip">
+          ${tip.tip} - ${tip.naziv}
+        </label>
+        
       </ak-template>
     </ak-grid-toolbar>
   
+    <ak-col k-title="#" k-field="rbr"></ak-col>
     <ak-col k-title="Broj dokumenta" k-field="broj"></ak-col>
-    <ak-col k-title="Kupac" k-field="kupac.naziv"></ak-col>
-    <ak-col k-title="Mesto isporuke" k-field="mestoIsporuke.naziv"></ak-col>
+    <ak-col k-title="Kupac" k-field="kupac" k-filterable.bind="common.kupacFilter" ></ak-col>
+    <ak-col k-title="Mesto isporuke" k-field="mestoIsporuke" k-filterable.bind="common.mestoIsporukeFilter"></ak-col>
     <ak-col k-title="Datum"  k-field="datum" k-format="{0:dd.MM.yyyy}" k-filterable.bind="common.datumDokumentaFilter"></ak-col>
     <ak-col k-title="Datum važenja" k-field="datumVazenja" k-format="{0:dd.MM.yyyy}" k-filterable.bind="common.datumDokumentaFilter"></ak-col>
-    <ak-col k-title="Status" k-field="status.naziv" k-filterable.bind="statusFilter"></ak-col>
+    <ak-col k-title="Status" k-field="status" k-filterable.bind="statusFilter"></ak-col>
     <ak-col k-title="Opcije" k-width="80px">
       <ak-template>
         <button class="btn btn-primary btn-sm" 

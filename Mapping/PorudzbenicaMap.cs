@@ -20,8 +20,9 @@ namespace webkom.Mapping
         {
             Table("tPorudzbenica");
             Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
-            Map(x => x.Vrsta).CustomSqlType("varchar(20)");
-            Map(x => x.Sifra).CustomSqlType("varchar(20)");
+            //.Map(x => x.Vrsta).CustomSqlType("varchar(20)");
+            //Map(x => x.Sifra).CustomSqlType("varchar(20)");
+            Map(x => x.Tip).CustomSqlType("varchar(20)");
             Map(x => x.Broj);
             Map(x => x.BrojPanteon).CustomSqlType("varchar(50)");
             Map(x => x.Datum).CustomSqlType("date");

@@ -95,7 +95,8 @@ namespace webkom.Helper
       {
         //_updates++;
 
-        SetValue(currentState, propertyNames, "UserModified", HttpHelper.HttpContext?.User?.Identity?.Name ?? "");
+        //SetValue(currentState, propertyNames, "UserModified", HttpHelper.HttpContext?.User?.Identity?.Name ?? "");
+        SetValue(currentState, propertyNames, "UserModified", _httpContext.HttpContext.User.Identity.Name);
         SetValue(currentState, propertyNames, "DateModified", DateTime.Now);
 
 
@@ -152,7 +153,8 @@ namespace webkom.Helper
       //Log.Info("interceptuje insert, user created: " + Thread.CurrentPrincipal.Identity.Name);
       if (entity is Entitet)
       {
-        SetValue(state, propertyNames, "UserCreated", HttpHelper.HttpContext?.User?.Identity?.Name ?? "");
+        //SetValue(state, propertyNames, "UserCreated", HttpHelper.HttpContext?.User?.Identity?.Name ?? "");
+        SetValue(state, propertyNames, "UserCreated", _httpContext.HttpContext.User.Identity.Name);
         SetValue(state, propertyNames, "DateCreated", DateTime.Now);
         SetValue(state, propertyNames, "DateModified", DateTime.Now);
         SetValueIfNull(state, propertyNames, "Zakljucan", false);

@@ -14,21 +14,27 @@ using Newtonsoft.Json;
 using System.Web;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.AspNetCore.Http;
+using webkom.Models.DTO;
+using NHibernate.Transform;
+using NHibernate;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace webkom.Controllers.api
 {
     [Route("api/[controller]")]
-    //[Authorize("Bearer")]
+    [Authorize("Bearer")]
     public class PorudzbenicaController : Controller
     {
         private readonly ISession _session;
         private readonly ILogger _logger;
+        //private readonly IHttpContextAccessor _httpContextAccessor;
 
         public PorudzbenicaController(ISession session, ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<KorisnikController>();
             _session = session;
+            //_httpContextAccessor = httpContextAccessor;
         }
 
         //[HttpGet("{id}")]
@@ -61,7 +67,23 @@ namespace webkom.Controllers.api
                 return BadRequest();
             }
         }
-
+        [HttpGet]
+        [Route("[Action]")]
+        public ActionResult PorudzbenicaTip() //Get([FromUri] FilterContainer filter, int take, int skip, int page, int pageSize)
+        {
+            try
+            {
+                var upit = _session.CreateSQLQuery("exec PorudzbenicaTip");
+                var res = upit.SetResultTransformer(Transformers.AliasToBean(typeof(PorudzbenicaTip))).List<PorudzbenicaTip>();
+                return Ok(res);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.InnerException.Message);
+                return BadRequest();
+            }
+        }
         [HttpGet]
         [Route("[Action]")]
         public ActionResult PorudzbenicaStavka(int id, string vrsta)
@@ -101,7 +123,7 @@ namespace webkom.Controllers.api
             var res = upit.ExecuteUpdate();
             return Ok(res);
         }
-        
+
         [HttpPost]
         [Route("[Action]")]
         public ActionResult BrisiStavku([FromQuery] int id)
@@ -112,7 +134,99 @@ namespace webkom.Controllers.api
             var res = upit.ExecuteUpdate();
             return Ok(res);
         }
+        [HttpPost]
+        [Route("[Action]")]
+        public KendoResult<PorudzbenicaDto> PregledGridProc([FromBody]KendoRequest kr)
+        {
 
+            //         @tip NVARCHAR(20) = NULL,
+            // @broj INT = NULL,
+            // @kupac INT = NULL,
+            // @mestoIsporuke INT = NULL,
+            // @datum1 DATE = NULL,
+            // @datum2 DATE = NULL,
+            // @datumVazenja1 DATE = NULL,
+            // @datumVazenja2 DATE = NULL,
+            // @status int = NULL
+            var upit = _session.CreateSQLQuery("exec PregledPorudzbenica :count, :take, :skip, :sortfield, :sortdir, :tip, :broj, :kupac , :mestoIsporuke, :datum1, :datum2, :datumVazenja1, :datumVazenja2, :status");
+            upit.SetParameter("count", false, NHibernateUtil.Boolean);
+            upit.SetParameter("take", kr.Take, NHibernateUtil.Int32);
+            upit.SetParameter("skip", kr.Skip, NHibernateUtil.Int32);
+            upit.SetParameter("sortfield", "Datum", NHibernateUtil.String);
+            upit.SetParameter("sortdir", "ASC", NHibernateUtil.String);
+            upit.SetParameter("tip", null, NHibernateUtil.String);
+            upit.SetParameter("broj", null, NHibernateUtil.Int32);
+            upit.SetParameter("kupac", null, NHibernateUtil.Int32);
+            upit.SetParameter("mestoIsporuke", null, NHibernateUtil.Int32);
+            upit.SetParameter("datum1", null, NHibernateUtil.Date);
+            upit.SetParameter("datum2", null, NHibernateUtil.Date);
+            upit.SetParameter("datumVazenja1", null, NHibernateUtil.Date);
+            upit.SetParameter("datumVazenja2", null, NHibernateUtil.Date);
+            upit.SetParameter("status", null, NHibernateUtil.Int32);
+
+            if (kr.Filter != null && kr.Filter.Filters.Any())
+            {
+                foreach (FilterDescription filter in kr.Filter.Filters)
+                {
+                    string prop = filter.Field;
+
+                    if (prop ==("datum"))
+                    {
+                        var d = Convert.ToDateTime(filter.Value);
+                        //filter.Value = d.ToLocalTime().ToString("yyyyMMdd");
+                        if (filter.Operator == "gte")
+                        {
+                             upit.SetParameter("datum1", d, NHibernateUtil.Date);
+                        }
+                        if (filter.Operator == "lte")
+                        {
+                            //d = d.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+                            //upit.And(x => x.Datum <= d);
+                            //rows.And(x => x.Datum <= d);
+                             upit.SetParameter("datum2", d, NHibernateUtil.Date);
+                        }
+                    }if (prop ==("datumVazenja"))
+                    {
+                        var d = Convert.ToDateTime(filter.Value);
+                        //filter.Value = d.ToLocalTime().ToString("yyyyMMdd");
+                        if (filter.Operator == "gte")
+                        {
+                             upit.SetParameter("datumVazenja1", d, NHibernateUtil.Date);
+                        }
+                        if (filter.Operator == "lte")
+                        {
+                            //d = d.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+                            //upit.And(x => x.Datum <= d);
+                            //rows.And(x => x.Datum <= d);
+                             upit.SetParameter("datumVazenja2", d, NHibernateUtil.Date);
+                        }
+                    }
+                    else
+                    {
+                        upit.SetParameter(prop, filter.Value);
+                    }
+
+                }
+            }
+            if (kr.Sort.Any())
+            {
+                foreach (var sort in kr.Sort)
+                {
+                    
+                    upit.SetParameter("sortfield", sort.Field);
+                    upit.SetParameter("sortdir", sort.Dir );
+                }
+            }
+            var lista = upit.SetResultTransformer(Transformers.AliasToBean(typeof(PorudzbenicaDto))).List<PorudzbenicaDto>();
+            var res = new KendoResult<PorudzbenicaDto>
+            {
+                Data = lista,
+                Total = lista.Count
+            };
+            return res;
+        }
         [HttpPost]
         [Route("[Action]")]
         public KendoResult<Porudzbenica> PregledGrid([FromBody]KendoRequest kr)
@@ -236,7 +350,7 @@ namespace webkom.Controllers.api
                 porudzbenica.Uid = anid;
 
             if (porudzbenica.Id == 0)
-                porudzbenica.Broj = Helper.RedniBroj(_session, porudzbenica.Vrsta);
+                porudzbenica.Broj = Helper.RedniBroj(_session, porudzbenica.Tip);
 
 
             using (var trans = _session.BeginTransaction())

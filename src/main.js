@@ -25,7 +25,7 @@ export function configure(aurelia) {
                   //credentials: 'same-origin',
                   headers: {
                       'Accept': 'application/json',
-                      //'Content-Type': "application/json",
+                      'Content-Type': "application/json",
                       'X-Requested-With': 'Fetch'
                   }
               })

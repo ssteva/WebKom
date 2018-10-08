@@ -14,9 +14,11 @@ namespace webkom.Models
             Stavke  = new HashSet<PorudzbenicaStavka>();
         }
         public virtual int Id { get; set; }
-        public virtual string Vrsta { get; set; }
-        public virtual string Sifra { get; set; }
+        //public virtual string Vrsta { get; set; }
+        //public virtual string Sifra { get; set; }
+        public virtual string Tip { get; set; }
         public virtual int Broj { get; set; }
+        
         public virtual string BrojPanteon { get; set; }
         public virtual DateTime Datum { get; set; }
         public virtual DateTime DatumVazenja { get; set; }

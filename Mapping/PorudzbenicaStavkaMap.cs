@@ -22,7 +22,7 @@ namespace webkom.Mapping
             Id(x => x.Id).UnsavedValue(0).GeneratedBy.Identity();
             Map(x => x.Rbr);
             Map(x => x.Poruceno);
-            Map(x => x.Otprema);
+            //Map(x => x.Otprema);
             Map(x => x.Jm).CustomSqlType("varchar(3)");
             Map(x => x.Koleta).CustomSqlType("decimal(19,6)");
             Map(x => x.PoreskaStopa);
