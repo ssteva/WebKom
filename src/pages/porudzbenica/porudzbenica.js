@@ -282,15 +282,15 @@ export class Porudzbenica {
         });
 
         this.subscription4 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
-          this.vrednost = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.vrednost), 0);
+          this.vrednost = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.poruceno * stavka.konacnaCena), 0);
         });
 
         this.subscription4 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
-          this.placanje = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.placanje), 0);
+          this.placanje = this.porudzbenica.stavke.reduce((sum, stavka) => sum +  (stavka.vrednost * (100 + stavka.poreskaStopa) / 100), 0);
         });
 
         this.subscription5 = this.bindingEngine.collectionObserver(this.porudzbenica.stavke).subscribe((splices) => {
-          this.pdv = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.pdv), 0);
+          this.pdv = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (((stavka.poruceno * stavka.konacnaCena) * (100 + stavka.poreskaStopa) / 100) - (stavka.poruceno * stavka.konacnaCena)), 0);
         });
       })
       .catch(err => toastr.error(err.statusText));
@@ -299,9 +299,9 @@ export class Porudzbenica {
     this.komada = this.porudzbenica.stavke.reduce((sum, stavka) => sum + stavka.poruceno, 0);
     this.ukupno = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.poruceno * stavka.cena), 0);
     this.popustprocenat = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.rabat), 0);
-    this.vrednost = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.vrednost), 0);
-    this.placanje = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.placanje), 0);
-    this.pdv = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.pdv), 0);
+    this.vrednost = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (stavka.poruceno * stavka.konacnaCena), 0);
+    this.placanje = this.porudzbenica.stavke.reduce((sum, stavka) => sum + ((stavka.poruceno * stavka.konacnaCena) * (100 + stavka.poreskaStopa) / 100), 0);
+    this.pdv = this.porudzbenica.stavke.reduce((sum, stavka) => sum + (((stavka.poruceno * stavka.konacnaCena) * (100 + stavka.poreskaStopa) / 100) - (stavka.poruceno * stavka.konacnaCena)), 0);
     this.popust = Math.abs(this.vrednost - this.ukupno);
   }
 
@@ -560,11 +560,13 @@ export class Porudzbenica {
     this.kalkulacijaRabata(porudzbenicastavka, rabat1, rabat2, rabat3);
     this.sume();
   }
-  onPorucenoChange(obj, e) {
+  onPorucenoChange(obj, e, bezsume) {
     let porudzbenicastavka = obj.stavka;
     let kolicina = e.sender.value();
     porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * kolicina;
-    this.sume();
+    porudzbenicastavka.placanje = (porudzbenicastavka.vrednost * (100 + porudzbenicastavka.poreskaStopa) / 100);
+    if(!bezsume)
+      this.sume();
   }
   onSelectStatus(e) {
     let dataItem = this.cboStatus.dataItem(e.item);
@@ -598,6 +600,7 @@ export class Porudzbenica {
         porudzbenicastavka.konacnaCena = cena3;
       }
       porudzbenicastavka.vrednost = porudzbenicastavka.konacnaCena * porudzbenicastavka.poruceno;
+      porudzbenicastavka.placanje = (porudzbenicastavka.vrednost * (100 + porudzbenicastavka.poreskaStopa) / 100);
     } catch (error) {
       console.log(error);
     }

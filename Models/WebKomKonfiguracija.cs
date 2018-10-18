@@ -10,6 +10,8 @@ namespace webkom.Models
     {
         public  int minutaToken { get; set; }
         public  int minutaRefreshToken { get; set; }
+        public bool seed {get;set;}
+        public bool rekreirajBazu {get;set;}
     }
 }
 

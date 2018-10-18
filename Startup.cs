@@ -139,9 +139,15 @@ namespace webkom
                   .BuildConfiguration();
                 //export
                 var exporter = new SchemaExport(config);
-                //exporter.Drop(true, true);
-                //exporter.Create(true, true);
-                //exporter.Execute(true, true, false);
+                var d = _config.GetSection("webKomKonfiguracija:rekreirajBazu");
+                var drop = Boolean.Parse(d.Value);
+                if (drop)
+                {
+                    exporter.Drop(true, true);
+                    exporter.Drop(true, true);
+                    exporter.Create(true, true);
+                    //exporter.Execute(true, true, false);
+                }
                 //update
                 // var update = new SchemaUpdate(config);
                 // update.Execute(true, true);
@@ -161,7 +167,7 @@ namespace webkom
 
 
             services.AddScoped(factory =>
-              new KorisnikManager(factory.GetRequiredService<NHibernate.ISession>(),factory.GetRequiredService<IHttpContextAccessor>())
+              new KorisnikManager(factory.GetRequiredService<NHibernate.ISession>(), factory.GetRequiredService<IHttpContextAccessor>())
             );
 
 
@@ -200,22 +206,25 @@ namespace webkom
             app.UseAuthentication();
             app.UseStaticFiles();
             //HttpHelper.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>(), app.ApplicationServices.GetRequiredService<ILoggerFactory>());
-            using (var serviceScope = app.ApplicationServices.CreateScope())
-            {
-                try
-                {
-                    //EnsureDataStorageIsReady(services);
-                    
-                    //var init = new Seed(serviceScope.ServiceProvider.GetService<KorisnikManager>(), serviceScope.ServiceProvider.GetService<NHibernate.ISession>(), serviceScope.ServiceProvider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>());
-                    //init.SeedDatabase();
-                }
-                catch (Exception ex)
-                {
-                    var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex.Message, "An error occurred while migrating the database.");
-                }
+            // using (var serviceScope = app.ApplicationServices.CreateScope())
+            // {
+            //     try
+            //     {
+            //         //EnsureDataStorageIsReady(services);
+            //         var s = _config.GetSection("webKomKonfiguracija:seed");
+            //         var seed = Boolean.Parse(s.Value);
+            //         if (seed){
+            //           var init = new Seed(serviceScope.ServiceProvider.GetService<KorisnikManager>(), serviceScope.ServiceProvider.GetService<NHibernate.ISession>(), serviceScope.ServiceProvider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>());
+            //           init.SeedDatabase();
+            //         }
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
+            //         logger.LogError(ex.Message, "An error occurred while migrating the database.");
+            //     }
 
-            }
+            // }
 
             app.UseMvc(routes =>
             {

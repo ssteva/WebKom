@@ -37,16 +37,16 @@ namespace webkom.Mapping
             Map(x => x.StatusPanteon);
             Map(x => x.Uid);
             Map(x => x.Napomena).CustomSqlType("nvarchar(1000)");
-            References(x => x.Valuta).Cascade.None().Not.Update().LazyLoad();
-            References(x => x.NacinDostave).Cascade.None().Not.Update();
-            References(x => x.NacinPlacanja).Cascade.None().Not.Update();
-            References(x => x.Kupac).Column("KupacId").Cascade.None().Not.Update();
             //References(x => x.Platilac).Column("PlatilacId").Cascade.None().Not.Update();
+            References(x => x.Valuta).Column("ValutaId").Cascade.None().Not.Update().LazyLoad();
+            References(x => x.NacinDostave).Column("NacinDostaveId").Cascade.None().Not.Update();
+            References(x => x.NacinPlacanja).Column("NacinPlacanjaId").Cascade.None().Not.Update();
+            References(x => x.Kupac).Column("KupacId").Cascade.None().Not.Update();
             References(x => x.Skladiste).Column("SkladisteId").Cascade.None().Not.Update();
             References(x => x.Odeljenje).Column("OdeljenjeId").Cascade.None().Not.Update();
             References(x => x.MestoIsporuke).Column("MestoIsporukeId").Cascade.None().Not.Update();
             References(x => x.Region).Column("MestoId").Cascade.None();
-            References(x => x.Referent).Cascade.None().Not.Update();
+            References(x => x.Referent).Column("KorisnikId").Cascade.None().Not.Update();
             References(x => x.Status).Cascade.None();
             HasMany(x => x.Stavke)
               .Inverse()

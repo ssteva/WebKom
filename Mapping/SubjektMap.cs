@@ -30,9 +30,9 @@ namespace webkom.Mapping
       Map(x => x.Skladiste);
       Map(x => x.Odeljenje);
       Map(x => x.DanaZaPlacanje);
-      References(x => x.OdgovornoLice).Cascade.None().Not.Update();
-      References(x => x.Valuta).Cascade.None().Not.Update();
-      References(x => x.Mesto).Cascade.None().Not.Update();
+      References(x => x.OdgovornoLice).Column("KorisnikId").Cascade.None().Not.Update();
+      References(x => x.Valuta).Column("ValutaId").Cascade.None().Not.Update();
+      References(x => x.Mesto).Column("MestoId").Cascade.None().Not.Update();
       References(x => x.Platilac).Column("PlatilacId").Cascade.None().Not.Update();
       References(x => x.MestoIsporuke).Column("MestoIsporukeId").Cascade.None().Not.Update();
     }

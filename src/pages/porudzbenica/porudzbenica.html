@@ -147,7 +147,7 @@
             <td>
               <div show.bind="stavka.edit && stavka.ident.id">
                 <input id.bind="'numPoruceno' + stavka.rbr" class="form-control form-control-sm" style="max-width:60px;" type="number" ak-numerictextbox="k-widget.bind: txtPoruceno;k-value.two-way: stavka.poruceno;k-format.bind:'n0'; k-min.bind:0;k-max.bind:1000;k-step.bind:1"
-                  k-on-change.delegate="onPorucenoChange($this, $event.detail)" k-on-spin.delegate="onPorucenoChange($this, $event.detail)">
+                  k-on-change.delegate="onPorucenoChange($this, $event.detail)" k-on-spin.delegate="onPorucenoChange($this, $event.detail, true)">
               </div>
               <div if.bind="!stavka.edit">
                 ${stavka.poruceno}

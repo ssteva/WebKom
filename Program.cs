@@ -55,6 +55,28 @@ namespace webkom
                     //   var logger = services.GetRequiredService<ILogger<Program>>();
                     //   logger.LogError(ex.Message, "An error occurred while migrating the database.");
                     // }
+                    using (var serviceScope = host.Services.CreateScope())
+                    {
+                        try
+                        {
+                            //EnsureDataStorageIsReady(services);
+                            var _config = serviceScope.ServiceProvider.GetService<IConfiguration>();
+                            var s = _config.GetSection("webKomKonfiguracija:seed");
+                            var seed = Boolean.Parse(s.Value);
+                            if (seed)
+                            {
+                                var init = new Seed(serviceScope.ServiceProvider.GetService<KorisnikManager>(), serviceScope.ServiceProvider.GetService<NHibernate.ISession>(), serviceScope.ServiceProvider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>());
+                                init.SeedDatabase();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                            logger.LogError(ex.Message, "An error occurred while migrating the database.");
+                        }
+
+                    }
+
                 }
                 host.Run();
                 return;
