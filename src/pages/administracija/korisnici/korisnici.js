@@ -16,9 +16,10 @@ export class Korisnici {
   constructor(authService, em, dialogService, repo, common) {
     this.authService = authService;
     this.repo = repo;
-    this.repoKorisnik = em.getRepository('korisnik');
     this.dialogService = dialogService;
     this.common = common;
+	this.em + em;
+	this.repoKorisnik = em.getRepository('korisnik');
     let payload = this.authService.getTokenPayload();
     if (payload) {
       this.korisnik = payload.unique_name;

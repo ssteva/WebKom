@@ -1,0 +1,27 @@
+<template>
+  <ak-grid id="grid" k-widget.bind="grid"
+                     k-data-source.bind="datasource"
+                     k-pageable.bind="common.pageable"
+                     k-filterable.bind="common.filterobj"
+                     k-sortable.bind="true"
+                     k-excel.bind="{ fileName: 'Logistija.xlsx' }"
+                     style="width: 90%">
+                <ak-grid-toolbar>
+                    <ak-template>
+                        <a class="k-button k-button-icontext k-grid-excel" href="javascript:void()"><span class="k-icon k-i-excel"></span>Export to Excel</a>
+                        <!--<a class="k-button k-button-icontext k-grid-pdf" href="javascript:void()"><span class="k-icon k-i-pdf"></span>Export to PDF</a>-->
+                    </ak-template>
+                </ak-grid-toolbar>
+                <ak-col k-title="Id" k-field="Id"></ak-col>
+                <ak-col k-title="Dan" k-field="dan"></ak-col>
+                <ak-col k-title="Nalog" k-field="nalog"></ak-col>
+                <ak-col k-title="Ident" k-field="ident"></ak-col>
+                <ak-col k-title="Proizvod" k-field="proizvod"></ak-col>
+                <ak-col k-title="Količina" k-field="kolicina"></ak-col>
+                <ak-col k-title="Količina2" k-field="kolicina2"></ak-col>
+                <ak-col k-title="Registracija" k-field="registracija"></ak-col>
+                <ak-col k-title="Vozač" k-field="vozac"></ak-col>
+            </ak-grid>
+</template>
+
+
